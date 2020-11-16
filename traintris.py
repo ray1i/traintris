@@ -49,6 +49,7 @@ class Board:
         pass
 
 def check_collision(mino, board):
+    pass
     
 
 def main(): 
