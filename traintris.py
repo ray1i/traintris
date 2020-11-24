@@ -5,8 +5,9 @@ import sys
 
 import mino_types as types
 
-bag = ['I', 'O', 'T', 'L', 'J', 'Z', 'S']
-random.shuffle(bag) 
+default_bag = ['I', 'O', 'T', 'L', 'J', 'Z', 'S']
+bag = default_bag.copy()
+random.shuffle(bag)
 sprites = {}
 
 class Mino:
@@ -59,7 +60,7 @@ class Mino:
 class Board:
     def __init__(self):
         self.blocks = [[0 for s in range(10)] for t in range(40)]
-        self.image = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert()
+        self.image = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert_alpha()
         self.types = [[None for s in range(10)] for t in range(40)]
     def place_mino(self, mino):
         for i in range(len(mino.x)):
@@ -95,11 +96,11 @@ def get_bottommost_pos(mino, b):
 
 def main(): 
     pg.init()
+    px = 24
     screen = pg.display.set_mode((640, 480))
     pg.display.set_caption('traintris gmae')
 
-    bg = pg.Surface(screen.get_size())
-    bg = bg.convert()
+    bg = pg.Surface(screen.get_size()).convert()
     bg.fill((0, 0, 0))
     screen.blit(bg, (0, 0))
     pg.display.flip()
@@ -108,8 +109,16 @@ def main():
     board = Board()
     queue = bag.copy()
     ingame = True
-    for i in bag:
-        sprites[i] = pg.image.load(f'{os.path.dirname(__file__)}/{i}.png').convert()
+
+    blocksheet = pg.image.load(f'{os.path.dirname(__file__)}/blocksheet.png').convert() # 'IOTLJZSGempty'
+    for i in range(len(default_bag)):
+        temp_sprite = pg.Surface((px, px))
+        temp_sprite.blit(blocksheet, (0, 0), (px * i, 0, px, px))
+        sprites[default_bag[i]] = temp_sprite.copy()
+
+        ## make a ghost version ##
+        temp_sprite.set_alpha(75)
+        sprites['-' + default_bag[i]] = temp_sprite
 
     das = 140
     arr = 30
@@ -118,6 +127,8 @@ def main():
     arr_start = 0
     sd_start = 0
     ctrl_queue = {'DOWN':False, 'LEFT':False, 'RIGHT':False}
+
+    gravity = 10
 
     curr_mino = Mino(queue.pop(0))
     while True:
@@ -183,7 +194,6 @@ def main():
                     sd_start += sd
 
             ### queue ###
-            print(queue)
             if len(queue) < 5:
                 random.shuffle(bag)
                 queue += bag
@@ -195,14 +205,16 @@ def main():
             screen.blit(board.image, (0, 0))
             for i in range(len(board.blocks)):
                 for j in range(len(board.blocks[i])):
-                    if not board.types[i][j] == None:
-                        screen.blit(sprites[board.types[i][j]], (j * 12, i * 12 - 20*12))
+                    if not board.types[i][j] is None:
+                        screen.blit(sprites[board.types[i][j]], (j * px, i * px - 20*px))
             
             ### draw ghost piece ###
+            for i in range(4):
+                screen.blit(sprites['-' + curr_mino.type], (get_bottommost_pos(curr_mino, board).x[i] *px, get_bottommost_pos(curr_mino, board).y[i] * px - 20*px))
 
             ### draw mino ###
             for i in range(4):
-                screen.blit(curr_mino.image, (curr_mino.x[i] * 12, curr_mino.y[i] * 12 - 20*12))
+                screen.blit(curr_mino.image, (curr_mino.x[i] * px, curr_mino.y[i] * px - 20*px))
             
         
         pg.display.flip()
