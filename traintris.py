@@ -131,6 +131,7 @@ def main():
     gravity = 10
 
     curr_mino = Mino(queue.pop(0))
+    hold_mino = None
     while True:
         if ingame:
 
@@ -165,6 +166,14 @@ def main():
                     elif event.key == pg.K_SPACE: #SPACE
                         board.place_mino(get_bottommost_pos(curr_mino, board))
                         curr_mino = Mino(queue.pop(0))
+                    
+                    ### HOLD ###
+                    elif event.key == pg.K_LCTRL: #LCTRL
+                        if not hold_mino is None:
+                            hold_mino, curr_mino = Mino(curr_mino.type), Mino(hold_mino.type)
+                        else:
+                            hold_mino = Mino(curr_mino.type)
+                            curr_mino = Mino(queue.pop(0))
                 
                 elif event.type == pg.KEYUP:
                     if event.key == pg.K_DOWN: #DOWN
@@ -215,6 +224,11 @@ def main():
             ### draw mino ###
             for i in range(4):
                 screen.blit(curr_mino.image, (curr_mino.x[i] * px, curr_mino.y[i] * px - 20*px))
+
+            ### draw hold mino
+            if not hold_mino is None:
+                for i in range(4):
+                    screen.blit(hold_mino.image, (hold_mino.x[i] * px, hold_mino.y[i] * px - 20*px))
             
         
         pg.display.flip()
