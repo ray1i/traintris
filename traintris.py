@@ -1,9 +1,9 @@
 import os
 import random
-import pygame as pg #PYGAME: TOP LEFT IS 0,0
 import sys
+import pygame as pg #PYGAME: TOP LEFT IS 0,0
 
-import mino_types as types
+from objects import Mino, Board
 
 WIDTH = 640
 HEIGHT = 480
@@ -12,100 +12,6 @@ default_bag = ['I', 'O', 'T', 'L', 'J', 'Z', 'S']
 bag = default_bag.copy()
 random.shuffle(bag)
 sprites = {}
-
-class Mino:
-    def __init__(self, type): #STARTS AT (20, 4)
-        self.type = type
-        self.perm = 0
-        self.ox = 4
-        self.oy = 20
-        self.image = sprites[type]
-        self.new_coords()
-
-    def new_coords(self):
-        self.x = [self.ox + s for s in types.init_x(self.type, self.perm)]
-        self.y = [self.oy - s for s in types.init_y(self.type, self.perm)] #flipped bc of pygame's weird coords
-
-    def move(self, h, v, b): #1 is right, -1 is left; 1 is up, -1 is down
-        tempMino = self.copy()
-        tempMino.ox += h
-        tempMino.oy -= v #flipped bc of pygame's weird coords
-        tempMino.new_coords()
-        if not collision(tempMino, b):
-            self.ox += h
-            self.oy -= v #flipped bc of pygame's weird coords
-            self.new_coords()
-
-    def rotate(self, dir, b): #1 is cw, -1 is ccw, 2 is 180
-        tempMino = self.copy()
-        tempMino.perm += dir
-        if tempMino.perm < 0:
-            tempMino.perm += 4
-        elif tempMino.perm > 3:
-            tempMino.perm -= 4
-        tempMino.new_coords()
-        if not collision(tempMino, b):
-            self.perm += dir
-            if self.perm < 0:
-                self.perm += 4
-            elif self.perm > 3:
-                self.perm -= 4
-            self.new_coords()
-    
-    def copy(self):
-        tempMino = Mino(self.type)
-        tempMino.perm = self.perm
-        tempMino.ox = self.ox
-        tempMino.oy = self.oy
-        tempMino.new_coords()
-        return tempMino
-
-class Board:
-    def __init__(self):
-        self.blocks = [[0 for s in range(10)] for t in range(40)]
-        self.image = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert_alpha()
-        self.types = [[None for s in range(10)] for t in range(40)]
-
-    def place_mino(self, mino):
-        for i in range(len(mino.x)):
-            self.blocks[mino.y[i]][mino.x[i]] = 1
-            self.types[mino.y[i]][mino.x[i]] = mino.type
-
-    def clearrows(self): #returns number of rows cleared
-        cleared = 0
-        for i in range(len(self.blocks)):
-            if self.blocks[i] == [1 for s in range(10)]:
-                self.blocks.pop(i)
-                self.blocks.insert(0, [0 for s in range(10)])
-                self.types.pop(i)
-                self.types.insert(1, [None for s in range(10)])
-                cleared += 1
-        return cleared
-
-def collision(mino, b):
-    for p in range(4):
-        try:
-            if b.blocks[mino.y[p]][mino.x[p]] == 1:
-                return True
-            elif mino.x[p] > 20 or mino.x[p] < 0:
-                return True
-            elif mino.y[p] < 0:
-                return True
-        except IndexError:
-            return True
-    return False
-
-def get_bottommost_pos(mino, b):
-    m = mino.copy()
-    while True:
-        lower_m = m.copy()
-        lower_m.oy += 1
-        lower_m.new_coords()
-        if collision(lower_m, b):
-            break
-        else:
-            m = lower_m
-    return m
 
 def main(): 
     pg.init()
@@ -139,7 +45,7 @@ def main():
 
     das = 100
     arr = 20
-    sd = 100
+    sd = 20
     das_start = 0
     arr_start = 0
     sd_start = 0
@@ -149,6 +55,7 @@ def main():
 
     curr_mino = Mino(queue.pop(0))
     hold_mino = None
+    already_held = False
     while True:
         if ingame:
 
@@ -181,19 +88,22 @@ def main():
                     
                     ### HARD DROP ###
                     elif event.key == pg.K_SPACE: #SPACE
-                        board.place_mino(get_bottommost_pos(curr_mino, board))
+                        board.place_mino(curr_mino.get_bottommost_pos(board))
                         curr_mino = Mino(queue.pop(0))
+                        already_held = False
                     
                     ### HOLD ###
                     elif event.key == pg.K_LCTRL: #LCTRL
-                        if not hold_mino is None:
-                            hold_mino, curr_mino = Mino(curr_mino.type), Mino(hold_mino.type)
-                        else:
-                            hold_mino = Mino(curr_mino.type)
-                            curr_mino = Mino(queue.pop(0))
-                        hold_mino.ox = 1
-                        hold_mino.oy = 20
-                        hold_mino.new_coords()
+                        if not already_held:
+                            if not hold_mino is None:
+                                hold_mino, curr_mino = Mino(curr_mino.type), Mino(hold_mino.type)
+                            else:
+                                hold_mino = Mino(curr_mino.type)
+                                curr_mino = Mino(queue.pop(0))
+                            hold_mino.ox = 1
+                            hold_mino.oy = 20
+                            hold_mino.new_coords()
+                        already_held = True
                 
                 elif event.type == pg.KEYUP:
                     if event.key == pg.K_DOWN: #DOWN
@@ -242,11 +152,11 @@ def main():
             
             ### draw ghost piece ###
             for i in range(4):
-                screen.blit(sprites['-' + curr_mino.type], (get_bottommost_pos(curr_mino, board).x[i] * px + boardpos[0], get_bottommost_pos(curr_mino, board).y[i] * px - 20*px + boardpos[1]))
+                screen.blit(sprites['-' + curr_mino.type], (curr_mino.get_bottommost_pos(board).x[i] * px + boardpos[0], curr_mino.get_bottommost_pos(board).y[i] * px - 20*px + boardpos[1]))
 
             ### draw mino ###
             for i in range(4):
-                screen.blit(curr_mino.image, (curr_mino.x[i] * px + boardpos[0], curr_mino.y[i] * px - 20*px + boardpos[1]))
+                screen.blit(sprites[curr_mino.type], (curr_mino.x[i] * px + boardpos[0], curr_mino.y[i] * px - 20*px + boardpos[1]))
 
             ### draw hold mino
             if not hold_mino is None:
@@ -257,7 +167,7 @@ def main():
                     hold_minopos[0] = int(boardpos[0] / 2 - (px * 1.5))
                 
                 for i in range(4):
-                    screen.blit(hold_mino.image, (hold_mino.x[i] * px + hold_minopos[0], hold_mino.y[i] * px - 20*px + hold_minopos[1]))
+                    screen.blit(sprites[hold_mino.type], (hold_mino.x[i] * px + hold_minopos[0], hold_mino.y[i] * px - 20*px + hold_minopos[1]))
             
             ### draw queue
             for m in range(5):
@@ -272,7 +182,7 @@ def main():
                     queuepos[0] = int(boardpos[0] / 2 - (px * 1.5))
                 
                 for i in range(4):
-                    screen.blit(tq_mino.image, (tq_mino.x[i] * px + queuepos[0] + boardpos[0]+px*10, tq_mino.y[i] * px - 20*px + queuepos[1] + (4*m*px)))
+                    screen.blit(sprites[tq_mino.type], (tq_mino.x[i] * px + queuepos[0] + boardpos[0]+px*10, tq_mino.y[i] * px - 20*px + queuepos[1] + (4*m*px)))
             
         pg.display.flip()
         clock.tick(60)
