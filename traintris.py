@@ -157,6 +157,7 @@ def main():
             ### draw mino ###
             for i in range(4):
                 screen.blit(sprites[curr_mino.type], (curr_mino.x[i] * px + boardpos[0], curr_mino.y[i] * px - 20*px + boardpos[1]))
+            #screen.blit(sprites['O'], (curr_mino.ox * px + boardpos[0], curr_mino.oy * px - 20*px + boardpos[1])) for origin
 
             ### draw hold mino
             if not hold_mino is None:
