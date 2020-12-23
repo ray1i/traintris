@@ -2,6 +2,7 @@ import os
 import pygame as pg
 
 import mino_types as types
+import srs
 
 class Mino:
     def __init__(self, type): #STARTS AT (20, 4)
@@ -32,15 +33,19 @@ class Mino:
             tempMino.perm += 4
         elif tempMino.perm > 3:
             tempMino.perm -= 4
-        tempMino.new_coords()
-        if not collision(tempMino, b):
-            self.perm += dir
-            if self.perm < 0:
-                self.perm += 4
-            elif self.perm > 3:
-                self.perm -= 4
-            self.new_coords()
-    
+
+        for offset in srs.get_offsets(tempMino.type, self.perm, tempMino.perm):
+            tempMino.ox = self.ox + offset[0]
+            tempMino.oy = self.oy - offset[1]
+            tempMino.new_coords()
+
+            if not collision(tempMino, b):
+                self.perm = tempMino.perm
+                self.ox = tempMino.ox
+                self.oy = tempMino.oy
+                self.new_coords()
+                break
+
     def copy(self):
         tempMino = Mino(self.type)
         tempMino.perm = self.perm
