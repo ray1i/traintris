@@ -9,7 +9,7 @@ class Mino:
         self.type = type
         self.perm = 0
         self.ox = 4
-        self.oy = 20
+        self.oy = 19
         self.new_coords()
 
     def new_coords(self):
