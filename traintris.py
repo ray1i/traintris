@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import pygame as pg #PYGAME: TOP LEFT IS 0,0
+import pygame.freetype
 
 from objects import Mino, Board
 
@@ -36,22 +37,30 @@ def main():
         sprites[default_bag[i]] = temp_sprite.copy()
 
         ## make a ghost version ##
-        temp_sprite.set_alpha(75)
+        temp_sprite.set_alpha(90)
         sprites['-' + default_bag[i]] = temp_sprite
     
     boardpos = (int(WIDTH / 6), 0)
     hold_minopos = [0, px * 2]
     queuepos = [0, px * 2]
 
-    das = 100
-    arr = 20
+    score = 0
+    lines = 0
+    pieces = 0
+
+    fontsize = HEIGHT // 12
+    FONT = pg.freetype.SysFont('Arial', fontsize)
+
+    das = 80
+    arr = 1
     sd = 20
     das_start = 0
     arr_start = 0
     sd_start = 0
     ctrl_queue = {'DOWN':False, 'LEFT':False, 'RIGHT':False}
 
-    #gravity = 10
+    gravity = 1200
+    gravity_start = 0
 
     curr_mino = Mino(queue.pop(0))
     hold_mino = None
@@ -61,6 +70,7 @@ def main():
 
             #### CONTROLS ####            
             for event in pg.event.get():
+
                 if event.type == pg.QUIT:
                     sys.exit()
                 elif event.type == pg.KEYDOWN:
@@ -91,6 +101,7 @@ def main():
                         board.place_mino(curr_mino.get_bottommost_pos(board))
                         curr_mino = Mino(queue.pop(0))
                         already_held = False
+                        pieces += 1 #might need to remove later
                     
                     ### HOLD ###
                     elif event.key == pg.K_LCTRL: #LCTRL
@@ -131,15 +142,24 @@ def main():
                 if pg.time.get_ticks() >= sd_start + sd:
                     curr_mino.move(0, -1, board)
                     sd_start += sd
+            else:
+                if pg.time.get_ticks() >= gravity_start + gravity:
+                    curr_mino.move(0, -1, board)
+                    gravity_start += gravity
 
-            ### SCORE, CLEAR BOARD
-            board.clearrows()
+            #### LOGIC ####
+
+            ### score, lines, clear board
+            conditions = board.clearrows()
+            lines += conditions
+            score += conditions
 
             ### queue ###
             if len(queue) < 5:
                 random.shuffle(bag)
                 queue += bag
             
+
             #### DRAW ####
             screen.blit(bg, (0, 0))
 
@@ -149,7 +169,7 @@ def main():
                 for j in range(len(board.blocks[i])):
                     if not board.types[i][j] is None:
                         screen.blit(sprites[board.types[i][j]], (j * px + boardpos[0], i * px - 20*px + boardpos[1]))
-            
+
             ### draw ghost piece ###
             for i in range(4):
                 screen.blit(sprites['-' + curr_mino.type], (curr_mino.get_bottommost_pos(board).x[i] * px + boardpos[0], curr_mino.get_bottommost_pos(board).y[i] * px - 20*px + boardpos[1]))
@@ -182,8 +202,13 @@ def main():
                     queuepos[0] = int(boardpos[0] / 2 - (px * 1.5))
                 
                 for i in range(4):
-                    screen.blit(sprites[tq_mino.type], (tq_mino.x[i] * px + queuepos[0] + boardpos[0]+px*10, tq_mino.y[i] * px - 20*px + queuepos[1] + (4*m*px)))
+                    screen.blit(sprites[tq_mino.type], (tq_mino.x[i]*px + queuepos[0] + boardpos[0]+px*10, tq_mino.y[i]*px - 20*px + queuepos[1] + (4*m*px)))
             
+            ### draw stats ###
+            FONT.render_to(screen, (5*px + boardpos[0]+px*10, 0), f'Score: {score}', (255, 255, 255))
+            FONT.render_to(screen, (5*px + boardpos[0]+px*10, 1*fontsize), f'Lines: {lines}', (255, 255, 255))
+            FONT.render_to(screen, (5*px + boardpos[0]+px*10, 2*fontsize), f'Pieces: {pieces}', (255, 255, 255))
+
         pg.display.flip()
         clock.tick(60)
 
