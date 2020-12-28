@@ -6,8 +6,6 @@ import pygame.freetype
 
 from objects import Mino, Board
 
-px = 24
-
 default_bag = ['I', 'O', 'T', 'L', 'J', 'Z', 'S']
 bag = default_bag.copy()
 random.shuffle(bag)
@@ -18,7 +16,7 @@ sd = 20
 gravity = 1200
 
 class Traintris: 
-    def __init__(self, WIDTH, HEIGHT):
+    def __init__(self, WIDTH, HEIGHT, px):
         pg.init()
         
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -29,11 +27,12 @@ class Traintris:
         self.screen.blit(self.bg, (0, 0))
         pg.display.flip()
 
+        self.px = px
         self.sprites = {}
         blocksheet = pg.image.load(f'{os.path.dirname(__file__)}/blocksheet.png').convert() # 'IOTLJZSGempty'
         for i in range(len(default_bag)):
-            temp_sprite = pg.Surface((px, px))
-            temp_sprite.blit(blocksheet, (0, 0), (px * i, 0, px, px))
+            temp_sprite = pg.Surface((self.px, self.px))
+            temp_sprite.blit(blocksheet, (0, 0), (self.px * i, 0, self.px, self.px))
             self.sprites[default_bag[i]] = temp_sprite.copy()
 
             ## make a ghost version ##
@@ -45,8 +44,8 @@ class Traintris:
         self.queue = bag.copy()
 
         self.boardpos = (int(WIDTH / 6), 0)
-        self.hold_minopos = [0, px * 2]
-        self.queuepos = [0, px * 2]
+        self.hold_minopos = [0, self.px * 2]
+        self.queuepos = [0, self.px * 2]
 
         self.score = 0
         self.lines = 0
@@ -158,7 +157,6 @@ class Traintris:
             random.shuffle(bag)
             self.queue += bag
         
-
     def draw_background(self):
         self.screen.blit(self.bg, (0, 0))
 
@@ -167,31 +165,31 @@ class Traintris:
         for i in range(len(self.board.blocks)):
             for j in range(len(self.board.blocks[i])):
                 if not self.board.types[i][j] is None:
-                    self.screen.blit(self.sprites[self.board.types[i][j]], (j * px + self.boardpos[0], i * px - 20*px + self.boardpos[1]))
+                    self.screen.blit(self.sprites[self.board.types[i][j]], (j * self.px + self.boardpos[0], i * self.px - 20*self.px + self.boardpos[1]))
 
         ### draw ghost piece ###
         for i in range(4):
-            self.screen.blit(self.sprites['-' + self.curr_mino.type], (self.curr_mino.get_bottommost_pos(self.board).x[i] * px + self.boardpos[0], self.curr_mino.get_bottommost_pos(self.board).y[i] * px - 20*px + self.boardpos[1]))
+            self.screen.blit(self.sprites['-' + self.curr_mino.type], (self.curr_mino.get_bottommost_pos(self.board).x[i] * self.px + self.boardpos[0], self.curr_mino.get_bottommost_pos(self.board).y[i] * self.px - 20*self.px + self.boardpos[1]))
 
     def draw_stats(self):
-        self.FONT.render_to(self.screen, (5*px + self.boardpos[0]+px*10, 0), f'Score: {self.score}', (255, 255, 255))
-        self.FONT.render_to(self.screen, (5*px + self.boardpos[0]+px*10, 1*self.fontsize), f'Lines: {self.lines}', (255, 255, 255))
-        self.FONT.render_to(self.screen, (5*px + self.boardpos[0]+px*10, 2*self.fontsize), f'Pieces: {self.pieces}', (255, 255, 255))
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 0), f'Score: {self.score}', (255, 255, 255))
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 1*self.fontsize), f'Lines: {self.lines}', (255, 255, 255))
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 2*self.fontsize), f'Pieces: {self.pieces}', (255, 255, 255))
 
     def draw_minos(self):
         for i in range(4):
-            self.screen.blit(self.sprites[self.curr_mino.type], (self.curr_mino.x[i] * px + self.boardpos[0], self.curr_mino.y[i] * px - 20*px + self.boardpos[1]))
+            self.screen.blit(self.sprites[self.curr_mino.type], (self.curr_mino.x[i] * self.px + self.boardpos[0], self.curr_mino.y[i] * self.px - 20*self.px + self.boardpos[1]))
 
         ### draw hold mino
         if not self.hold_mino is None:
             #centering hold mino: #REFACTOR THSI, maybe with sets
             if self.hold_mino.type in ['O', 'I']: #WIDTH 2, 4
-                self.hold_minopos[0] = int(self.boardpos[0] / 2 - (px * 2))
+                self.hold_minopos[0] = int(self.boardpos[0] / 2 - (self.px * 2))
             elif self.hold_mino.type in ['L', 'J', 'T', 'S', 'Z']: #WIDTH 3
-                self.hold_minopos[0] = int(self.boardpos[0] / 2 - (px * 1.5))
+                self.hold_minopos[0] = int(self.boardpos[0] / 2 - (self.px * 1.5))
             
             for i in range(4):
-                self.screen.blit(self.sprites[self.hold_mino.type], (self.hold_mino.x[i] * px + self.hold_minopos[0], self.hold_mino.y[i] * px - 20*px + self.hold_minopos[1]))
+                self.screen.blit(self.sprites[self.hold_mino.type], (self.hold_mino.x[i] * self.px + self.hold_minopos[0], self.hold_mino.y[i] * self.px - 20*self.px + self.hold_minopos[1]))
         
         ### draw self.queue
         for m in range(5):
@@ -201,12 +199,12 @@ class Traintris:
             tq_mino.new_coords()
 
             if self.queue[m] in ['O', 'I']: #WIDTH 2, 4
-                self.queuepos[0] = int(self.boardpos[0] / 2 - (px * 2))
+                self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 2))
             elif self.queue[m] in ['L', 'J', 'T', 'S', 'Z']: #WIDTH 3
-                self.queuepos[0] = int(self.boardpos[0] / 2 - (px * 1.5))
+                self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 1.5))
             
             for i in range(4):
-                self.screen.blit(self.sprites[tq_mino.type], (tq_mino.x[i]*px + self.queuepos[0] + self.boardpos[0]+px*10, tq_mino.y[i]*px - 20*px + self.queuepos[1] + (4*m*px)))
+                self.screen.blit(self.sprites[tq_mino.type], (tq_mino.x[i]*self.px + self.queuepos[0] + self.boardpos[0]+self.px*10, tq_mino.y[i]*self.px - 20*self.px + self.queuepos[1] + (4*m*self.px)))
 
     def draw_all(self):
         self.draw_background()
@@ -224,8 +222,9 @@ class Traintris:
         self.clock.tick(60)
 
 if __name__ == '__main__':
-    WIDTH = 640
-    HEIGHT = 480
-    game = Traintris(WIDTH, HEIGHT)
+    blocksize = 32
+    WIDTH = blocksize * 30
+    HEIGHT = blocksize * 20
+    game = Traintris(WIDTH, HEIGHT, blocksize)
     while True:
         game.update()
