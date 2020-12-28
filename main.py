@@ -1,10 +1,11 @@
 from traintris import Traintris
 
-WIDTH = 640
-HEIGHT = 480
+blocksize = 32
+WIDTH = blocksize * 30
+HEIGHT = blocksize * 20
 
 def main(): 
-    game = Traintris(WIDTH, HEIGHT)
+    game = Traintris(WIDTH, HEIGHT, blocksize)
     while True:
         game.update()
 
