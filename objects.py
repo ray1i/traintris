@@ -5,7 +5,7 @@ import mino_types as types
 import srs
 
 class Mino:
-    def __init__(self, type): #STARTS AT (20, 4)
+    def __init__(self, type): #STARTS AT (19, 4)
         self.type = type
         self.perm = 0
         self.ox = 4
@@ -65,6 +65,10 @@ class Mino:
             else:
                 m = lower_m
         return m
+
+    def draw(self, screen, sprite, x, y, px):
+        for block in range(len(self.x)):
+            screen.blit(sprite, (self.x[block] * px + x, self.y[block] * px + y - 20*px))
 
 class Board:
     def __init__(self):
