@@ -5,11 +5,11 @@ import mino_types as types
 import srs
 
 class Mino:
-    def __init__(self, type): #STARTS AT (19, 4)
+    def __init__(self, type, ox, oy): #STARTS AT (19, 4)
         self.type = type
+        self.ox = ox
+        self.oy = oy
         self.perm = 0
-        self.ox = 4
-        self.oy = 19
         self.new_coords()
 
     def new_coords(self):
@@ -47,11 +47,8 @@ class Mino:
                 break
 
     def copy(self):
-        tempMino = Mino(self.type)
+        tempMino = Mino(self.type, self.ox, self.oy)
         tempMino.perm = self.perm
-        tempMino.ox = self.ox
-        tempMino.oy = self.oy
-        tempMino.new_coords()
         return tempMino
     
     def get_bottommost_pos(self, b):
