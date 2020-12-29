@@ -177,8 +177,7 @@ class Traintris:
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 2*self.fontsize), f'Pieces: {self.pieces}', (255, 255, 255))
 
     def draw_minos(self):
-        for i in range(4):
-            self.screen.blit(self.sprites[self.curr_mino.type], (self.curr_mino.x[i] * self.px + self.boardpos[0], self.curr_mino.y[i] * self.px - 20*self.px + self.boardpos[1]))
+        self.curr_mino.draw(self.screen, self.sprites[self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
 
         ### draw hold mino
         if not self.hold_mino is None:
@@ -188,12 +187,11 @@ class Traintris:
             elif self.hold_mino.type in ['L', 'J', 'T', 'S', 'Z']: #WIDTH 3
                 self.hold_minopos[0] = int(self.boardpos[0] / 2 - (self.px * 1.5))
             
-            for i in range(4):
-                self.screen.blit(self.sprites[self.hold_mino.type], (self.hold_mino.x[i] * self.px + self.hold_minopos[0], self.hold_mino.y[i] * self.px - 20*self.px + self.hold_minopos[1]))
+            self.hold_mino.draw(self.screen, self.sprites[self.hold_mino.type], self.hold_minopos[0], self.hold_minopos[1], self.px)
         
         ### draw self.queue
         for m in range(5):
-            tq_mino = Mino(self.queue[m]) #temp self.queue mino
+            tq_mino = Mino(self.queue[m]) #temp queue mino
             tq_mino.ox = 1
             tq_mino.oy = 20
             tq_mino.new_coords()
@@ -203,8 +201,7 @@ class Traintris:
             elif self.queue[m] in ['L', 'J', 'T', 'S', 'Z']: #WIDTH 3
                 self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 1.5))
             
-            for i in range(4):
-                self.screen.blit(self.sprites[tq_mino.type], (tq_mino.x[i]*self.px + self.queuepos[0] + self.boardpos[0]+self.px*10, tq_mino.y[i]*self.px - 20*self.px + self.queuepos[1] + (4*m*self.px)))
+            tq_mino.draw(self.screen, self.sprites[tq_mino.type], self.boardpos[0]+self.px*10 + self.queuepos[0], self.queuepos[1] + (4*m*self.px), self.px)
 
     def draw_all(self):
         self.draw_background()
