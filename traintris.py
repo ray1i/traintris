@@ -61,7 +61,7 @@ class Traintris:
 
         self.gravity_start = 0
 
-        self.curr_mino = Mino(self.queue.pop(0))
+        self.curr_mino = Mino(self.queue.pop(0), 4, 19) #STARTS AT (19, 4)
         self.hold_mino = None
         self.already_held = False
 
@@ -97,7 +97,7 @@ class Traintris:
                 ### HARD DROP ###
                 elif event.key == pg.K_SPACE: #SPACE
                     self.board.place_mino(self.curr_mino.get_bottommost_pos(self.board))
-                    self.curr_mino = Mino(self.queue.pop(0))
+                    self.curr_mino = Mino(self.queue.pop(0), 4, 19)
                     self.already_held = False
                     self.pieces += 1 #might need to remove later
                 
@@ -105,13 +105,10 @@ class Traintris:
                 elif event.key == pg.K_LCTRL: #LCTRL
                     if not self.already_held:
                         if not self.hold_mino is None:
-                            self.hold_mino, self.curr_mino = Mino(self.curr_mino.type), Mino(self.hold_mino.type)
+                            self.hold_mino, self.curr_mino = Mino(self.curr_mino.type, 1, 20), Mino(self.hold_mino.type, 4, 19)
                         else:
-                            self.hold_mino = Mino(self.curr_mino.type)
-                            self.curr_mino = Mino(self.queue.pop(0))
-                        self.hold_mino.ox = 1
-                        self.hold_mino.oy = 20
-                        self.hold_mino.new_coords()
+                            self.hold_mino = Mino(self.curr_mino.type, 1, 20)
+                            self.curr_mino = Mino(self.queue.pop(0), 4, 19)
                     self.already_held = True
             
             elif event.type == pg.KEYUP:
@@ -191,10 +188,7 @@ class Traintris:
         
         ### draw self.queue
         for m in range(5):
-            tq_mino = Mino(self.queue[m]) #temp queue mino
-            tq_mino.ox = 1
-            tq_mino.oy = 20
-            tq_mino.new_coords()
+            tq_mino = Mino(self.queue[m], 1, 20) #temp queue mino
 
             if self.queue[m] in ['O', 'I']: #WIDTH 2, 4
                 self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 2))
