@@ -94,7 +94,7 @@ class Traintris:
                     self.ctrl_queue['RIGHT'] = True
                     self.das_start = pg.time.get_ticks()
                 
-                ### HARD DROP ###
+                ### HARD DROP ### 
                 elif event.key == pg.K_SPACE: #SPACE
                     self.board.place_mino(self.curr_mino.get_bottommost_pos(self.board))
                     self.curr_mino = Mino(self.queue.pop(0), 4, 19)
@@ -165,8 +165,7 @@ class Traintris:
                     self.screen.blit(self.sprites[self.board.types[i][j]], (j * self.px + self.boardpos[0], i * self.px - 20*self.px + self.boardpos[1]))
 
         ### draw ghost piece ###
-        for i in range(4):
-            self.screen.blit(self.sprites['-' + self.curr_mino.type], (self.curr_mino.get_bottommost_pos(self.board).x[i] * self.px + self.boardpos[0], self.curr_mino.get_bottommost_pos(self.board).y[i] * self.px - 20*self.px + self.boardpos[1]))
+        self.curr_mino.get_bottommost_pos(self.board).draw(self.screen, self.sprites['-' + self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
 
     def draw_stats(self):
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 0), f'Score: {self.score}', (255, 255, 255))

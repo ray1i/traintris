@@ -49,18 +49,16 @@ class Mino:
     def copy(self):
         tempMino = Mino(self.type, self.ox, self.oy)
         tempMino.perm = self.perm
+        tempMino.new_coords()
         return tempMino
     
     def get_bottommost_pos(self, b):
         m = self.copy()
-        while True:
-            lower_m = m.copy()
+        lower_m = m.copy()
+        while not collision(lower_m, b):
+            m = lower_m.copy()
             lower_m.oy += 1
             lower_m.new_coords()
-            if collision(lower_m, b):
-                break
-            else:
-                m = lower_m
         return m
 
     def draw(self, screen, sprite, x, y, px):
