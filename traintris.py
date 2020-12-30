@@ -95,9 +95,6 @@ class Traintris:
                     self.das_start = pg.time.get_ticks()
                 
                 ### HARD DROP ### 
-
-                ###THERE IS A BUG HERE FIX IT!!!!
-
                 elif event.key == pg.K_SPACE: #SPACE
                     self.board.place_mino(self.curr_mino.get_bottommost_pos(self.board))
                     self.curr_mino = Mino(self.queue.pop(0), 4, 19)
