@@ -5,6 +5,7 @@ import pygame as pg #PYGAME: TOP LEFT IS 0,0
 import pygame.freetype
 
 from objects import Mino, Board
+import pcfinder
 
 default_bag = ['I', 'O', 'T', 'L', 'J', 'Z', 'S']
 bag = default_bag.copy()
@@ -61,14 +62,15 @@ class Traintris:
 
         self.gravity_start = 0
 
-        self.curr_mino = Mino(self.queue.pop(0), 4, 19) #STARTS AT (19, 4)
+        self.curr_mino = Mino(self.queue.pop(0), 4, 19, 0) #STARTS AT (19, 4)
         self.hold_mino = None
         self.already_held = False
+
+        self.possibletemp = 0
 
     def handle_controls(self):
         #### CONTROLS ####            
         for event in pg.event.get():
-
             if event.type == pg.QUIT:
                 sys.exit()
             elif event.type == pg.KEYDOWN:
@@ -97,7 +99,7 @@ class Traintris:
                 ### HARD DROP ### 
                 elif event.key == pg.K_SPACE: #SPACE
                     self.board.place_mino(self.curr_mino.get_bottommost_pos(self.board))
-                    self.curr_mino = Mino(self.queue.pop(0), 4, 19)
+                    self.curr_mino = Mino(self.queue.pop(0), 4, 19, 0)
                     self.already_held = False
                     self.pieces += 1 #might need to remove later
                 
@@ -105,10 +107,10 @@ class Traintris:
                 elif event.key == pg.K_LCTRL: #LCTRL
                     if not self.already_held:
                         if not self.hold_mino is None:
-                            self.hold_mino, self.curr_mino = Mino(self.curr_mino.type, 1, 20), Mino(self.hold_mino.type, 4, 19)
+                            self.hold_mino, self.curr_mino = Mino(self.curr_mino.type, 1, 20, 0), Mino(self.hold_mino.type, 4, 19, 0)
                         else:
-                            self.hold_mino = Mino(self.curr_mino.type, 1, 20)
-                            self.curr_mino = Mino(self.queue.pop(0), 4, 19)
+                            self.hold_mino = Mino(self.curr_mino.type, 1, 20, 0)
+                            self.curr_mino = Mino(self.queue.pop(0), 4, 19, 0)
                     self.already_held = True
             
             elif event.type == pg.KEYUP:
@@ -121,6 +123,13 @@ class Traintris:
                 elif event.key == pg.K_RIGHT: #RIGHT
                     self.ctrl_queue['RIGHT'] = False
                     self.arr_start = 0
+            
+            elif event.type == pg.MOUSEBUTTONUP: #TEMPORARY HACK
+                if 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*13 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
+                    self.possibletemp -= 1
+                elif 5*self.px + self.boardpos[0]+self.px*14 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
+                    self.possibletemp += 1
+
 
     def handle_movement(self):
         if self.arr_start > 0:
@@ -172,6 +181,10 @@ class Traintris:
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 1*self.fontsize), f'Lines: {self.lines}', (255, 255, 255))
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*10, 2*self.fontsize), f'Pieces: {self.pieces}', (255, 255, 255))
 
+    def draw_gui(self):
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*12, 4*self.fontsize), '<', (255, 255, 255)) #TEMPORARY
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*14, 4*self.fontsize), '>', (255, 255, 255))
+
     def draw_minos(self):
         self.curr_mino.draw(self.screen, self.sprites[self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
 
@@ -187,7 +200,7 @@ class Traintris:
         
         ### draw self.queue
         for m in range(5):
-            tq_mino = Mino(self.queue[m], 1, 20) #temp queue mino
+            tq_mino = Mino(self.queue[m], 1, 20, 0) #temp queue mino
 
             if self.queue[m] in ['O', 'I']: #WIDTH 2, 4
                 self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 2))
@@ -195,11 +208,15 @@ class Traintris:
                 self.queuepos[0] = int(self.boardpos[0] / 2 - (self.px * 1.5))
             
             tq_mino.draw(self.screen, self.sprites[tq_mino.type], self.boardpos[0]+self.px*10 + self.queuepos[0], self.queuepos[1] + (4*m*self.px), self.px)
+        
+        
+        pcfinder.possible_positions(self.curr_mino.type, self.board, 4)[self.possibletemp].draw(self.screen, self.sprites[self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
 
     def draw_all(self):
         self.draw_background()
         self.draw_board()
         self.draw_stats()
+        self.draw_gui()
         self.draw_minos()
 
         pg.display.flip()
