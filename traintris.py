@@ -153,7 +153,7 @@ class Traintris:
 
     def handle_logic(self):
 
-        conditions = self.board.clearrows()
+        conditions = len(self.board.clearrows())
         self.lines += conditions
         self.score += conditions
 

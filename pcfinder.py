@@ -9,13 +9,15 @@ def possible_positions(type, board, height):
     for perm in range(4):
         for row in range(len(b)):
             for column in range(len(b[row])):
-                #try:
-                #print(column)
                 tempMino = Mino(type, column, row, perm)
-                #except IndexError:
-                    #break
-                tempMino.oy = len(board.blocks) - height + row
-                tempMino.new_coords()
-                possible.append(tempMino)
+                if not collision(tempMino, b):
+                    tempMino.oy = len(board.blocks) - height + row
+                    tempMino.new_coords()
+                    
+                    if tempMino.oy == tempMino.get_bottommost_pos(board).oy:
+                        possible.append(tempMino)
     return possible
  
+def findpc(type, board, height):
+    removed = [[] for row in range(height)]
+    

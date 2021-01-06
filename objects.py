@@ -74,15 +74,15 @@ class Board:
             self.blocks[mino.y[i]][mino.x[i]] = 1
             self.types[mino.y[i]][mino.x[i]] = mino.type
 
-    def clearrows(self): #returns number of rows cleared
-        cleared = 0
+    def clearrows(self): #returns indexes of rows cleared
+        cleared = []
         for i in range(len(self.blocks)):
             if self.blocks[i] == [1 for s in range(10)]:
                 self.blocks.pop(i)
                 self.blocks.insert(0, [0 for s in range(10)])
                 self.types.pop(i)
                 self.types.insert(1, [None for s in range(10)])
-                cleared += 1
+                cleared.append(i)
         return cleared
 
 def collision(mino, blocks):
