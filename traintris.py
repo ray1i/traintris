@@ -39,6 +39,7 @@ class Traintris:
             ## make a ghost version ##
             temp_sprite.set_alpha(90)
             self.sprites['-' + default_bag[i]] = temp_sprite
+        self.sprites['board'] = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert_alpha()
 
         self.clock = pg.time.Clock()
         self.board = Board()
@@ -66,7 +67,7 @@ class Traintris:
         self.hold_mino = None
         self.already_held = False
 
-        self.possibletemp = 0
+        self.pcarrangements = None
 
     def handle_controls(self):
         #### CONTROLS ####            
@@ -102,6 +103,7 @@ class Traintris:
                     self.curr_mino = Mino(self.queue.pop(0), 4, 19, 0)
                     self.already_held = False
                     self.pieces += 1 #might need to remove later
+                    self.pcarrangements = None
                 
                 ### HOLD ###
                 elif event.key == pg.K_LCTRL: #LCTRL
@@ -126,10 +128,11 @@ class Traintris:
             
             elif event.type == pg.MOUSEBUTTONUP: #TEMPORARY HACK
                 if 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*13 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
-                    self.possibletemp -= 1
+                    pass
                 elif 5*self.px + self.boardpos[0]+self.px*14 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
-                    self.possibletemp += 1
-
+                    pass
+                elif 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 5*self.fontsize <= pg.mouse.get_pos()[1] <= 6*self.fontsize:
+                    self.pcarrangements = pcfinder.findpc(self.curr_mino, self.queue, self.board, 4)
 
     def handle_movement(self):
         if self.arr_start > 0:
@@ -167,7 +170,7 @@ class Traintris:
         self.screen.blit(self.bg, (0, 0))
 
     def draw_board(self):
-        self.screen.blit(self.board.image, (self.boardpos[0], self.boardpos[1]))
+        self.screen.blit(self.sprites['board'], (self.boardpos[0], self.boardpos[1]))
         for i in range(len(self.board.blocks)):
             for j in range(len(self.board.blocks[i])):
                 if not self.board.types[i][j] is None:
@@ -184,6 +187,7 @@ class Traintris:
     def draw_gui(self):
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*12, 4*self.fontsize), '<', (255, 255, 255)) #TEMPORARY
         self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*14, 4*self.fontsize), '>', (255, 255, 255))
+        self.FONT.render_to(self.screen, (5*self.px + self.boardpos[0]+self.px*12, 5*self.fontsize), 'FIND PC', (255, 255, 255))
 
     def draw_minos(self):
         self.curr_mino.draw(self.screen, self.sprites[self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
@@ -209,8 +213,10 @@ class Traintris:
             
             tq_mino.draw(self.screen, self.sprites[tq_mino.type], self.boardpos[0]+self.px*10 + self.queuepos[0], self.queuepos[1] + (4*m*self.px), self.px)
         
-        
-        pcfinder.possible_positions(self.curr_mino.type, self.board, 4)[self.possibletemp].draw(self.screen, self.sprites[self.curr_mino.type], self.boardpos[0], self.boardpos[1], self.px)
+        if self.pcarrangements != None:
+            for m in self.pcarrangements[0]:
+                m.draw(self.screen, self.sprites['-' + m.type], self.boardpos[0], self.boardpos[1], self.px)
+            
 
     def draw_all(self):
         self.draw_background()

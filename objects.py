@@ -1,5 +1,6 @@
 import os
 import pygame as pg
+from copy import deepcopy
 
 import mino_types as types
 import srs
@@ -66,7 +67,6 @@ class Mino:
 class Board:
     def __init__(self):
         self.blocks = [[0 for s in range(10)] for t in range(40)]
-        self.image = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert_alpha()
         self.types = [[None for s in range(10)] for t in range(40)]
 
     def place_mino(self, mino):
@@ -84,6 +84,12 @@ class Board:
                 self.types.insert(1, [None for s in range(10)])
                 cleared.append(i)
         return cleared
+
+    def copy(self):
+        tempBoard = Board()
+        tempBoard.blocks = deepcopy(self.blocks)
+        tempBoard.types = deepcopy(self.types)
+        return tempBoard
 
 def collision(mino, blocks):
     for p in range(4):
