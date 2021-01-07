@@ -1,15 +1,16 @@
 import os
 import pygame as pg
+from copy import deepcopy
 
 import mino_types as types
 import srs
 
 class Mino:
-    def __init__(self, type, ox, oy): #STARTS AT (19, 4)
+    def __init__(self, type, ox, oy, perm): #STARTS AT (19, 4)
         self.type = type
         self.ox = ox
         self.oy = oy
-        self.perm = 0
+        self.perm = perm
         self.new_coords()
 
     def new_coords(self):
@@ -21,7 +22,7 @@ class Mino:
         tempMino.ox += h
         tempMino.oy -= v #flipped bc of pygame's weird coords
         tempMino.new_coords()
-        if not collision(tempMino, b):
+        if not collision(tempMino, b.blocks):
             self.ox += h
             self.oy -= v #flipped bc of pygame's weird coords
             self.new_coords()
@@ -39,7 +40,7 @@ class Mino:
             tempMino.oy = self.oy - offset[1]
             tempMino.new_coords()
 
-            if not collision(tempMino, b):
+            if not collision(tempMino, b.blocks):
                 self.perm = tempMino.perm
                 self.ox = tempMino.ox
                 self.oy = tempMino.oy
@@ -47,15 +48,13 @@ class Mino:
                 break
 
     def copy(self):
-        tempMino = Mino(self.type, self.ox, self.oy)
-        tempMino.perm = self.perm
-        tempMino.new_coords()
+        tempMino = Mino(self.type, self.ox, self.oy, self.perm)
         return tempMino
     
     def get_bottommost_pos(self, b):
         m = self.copy()
         lower_m = m.copy()
-        while not collision(lower_m, b):
+        while not collision(lower_m, b.blocks):
             m = lower_m.copy()
             lower_m.oy += 1
             lower_m.new_coords()
@@ -68,7 +67,6 @@ class Mino:
 class Board:
     def __init__(self):
         self.blocks = [[0 for s in range(10)] for t in range(40)]
-        self.image = pg.image.load(f'{os.path.dirname(__file__)}/board.png').convert_alpha()
         self.types = [[None for s in range(10)] for t in range(40)]
 
     def place_mino(self, mino):
@@ -76,21 +74,27 @@ class Board:
             self.blocks[mino.y[i]][mino.x[i]] = 1
             self.types[mino.y[i]][mino.x[i]] = mino.type
 
-    def clearrows(self): #returns number of rows cleared
-        cleared = 0
+    def clearrows(self): #returns indexes of rows cleared
+        cleared = []
         for i in range(len(self.blocks)):
             if self.blocks[i] == [1 for s in range(10)]:
                 self.blocks.pop(i)
                 self.blocks.insert(0, [0 for s in range(10)])
                 self.types.pop(i)
                 self.types.insert(1, [None for s in range(10)])
-                cleared += 1
+                cleared.append(i)
         return cleared
 
-def collision(mino, b):
+    def copy(self):
+        tempBoard = Board()
+        tempBoard.blocks = deepcopy(self.blocks)
+        tempBoard.types = deepcopy(self.types)
+        return tempBoard
+
+def collision(mino, blocks):
     for p in range(4):
         try:
-            if b.blocks[mino.y[p]][mino.x[p]] == 1:
+            if blocks[mino.y[p]][mino.x[p]] == 1:
                 return True
             elif mino.x[p] > 20 or mino.x[p] < 0:
                 return True
