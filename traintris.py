@@ -214,8 +214,16 @@ class Traintris:
             tq_mino.draw(self.screen, self.sprites[tq_mino.type], self.boardpos[0]+self.px*10 + self.queuepos[0], self.queuepos[1] + (4*m*self.px), self.px)
         
         if self.pcarrangements != None:
-            for m in self.pcarrangements[0]:
-                m.draw(self.screen, self.sprites['-' + m.type], self.boardpos[0], self.boardpos[1], self.px)
+            if type(self.pcarrangements) == str:
+                print(self.pcarrangements)
+                self.pcarrangements = None
+            else:
+                if self.pcarrangements == []:
+                    print('No PC found!')
+                    self.pcarrangements = None
+                else:
+                    for m in self.pcarrangements[0]:
+                        m.draw(self.screen, self.sprites['-' + m.type], self.boardpos[0], self.boardpos[1], self.px)
             
 
     def draw_all(self):

@@ -21,25 +21,43 @@ def possible_positions(type, board, height):
     return possible # a list of Minos
  
 def findpc(curr, queue, board, height):
-    arrangements = []
-    for m in possible_positions(curr.type, board, height):
-        arrangements.append([m])
+    # Make sure the board is pc-able with the height of the stack:
+    height = 100
+    blockcount = 0
+    for row_index in range(len(board.blocks)):
+        blockcount += board.blocks[row_index].count(1)
+        if board.blocks[row_index].count(1) > 0 and row_index < height:
+            height = len(board.blocks) - row_index
 
-    for mino_type in queue:
-        temparr = []
-        for arrangement in arrangements:
-            tempboard = board.copy()
-            cleared = 0
-            for m in arrangement:
-                tempboard.place_mino(m)
-                cleared += len(tempboard.clearrows())
+    if blockcount > blockcount or blockcount % 2 != 0:
+        return 'Odd amount of blocks!'
+    elif (height * 10 - blockcount) // 4 > len([curr] + queue):
+        return 'Queue not long enough!'
 
-                if cleared == 4:
-                    return [arrangement]
-                    
-            
-            for m in possible_positions(mino_type, tempboard, height - cleared):
-                temparr.append(arrangement + [m])
-        arrangements = deepcopy(temparr)
+    final_arrangements = []
+    while not (height * 10 - blockcount) // 4 > len([curr] + queue):
+        arrangements = []
+        for m in possible_positions(curr.type, board, height):
+            arrangements.append([m])
+
+        for mino_type in queue:
+            temparr = []
+            for arrangement in arrangements:
+                tempboard = board.copy()
+                cleared = 0
+                for m in arrangement:
+                    tempboard.place_mino(m)
+                    cleared += len(tempboard.clearrows())
+
+                    if cleared == height:
+                        return [arrangement]
+                        
+                
+                for m in possible_positions(mino_type, tempboard, height - cleared):
+                    temparr.append(arrangement + [m])
+            arrangements = deepcopy(temparr)
+
+        final_arrangements += arrangements
+        height += 1
     
-    return arrangements
+    return final_arrangements
