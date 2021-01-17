@@ -19,7 +19,16 @@ def possible_positions(type, board, height):
                     if tempMino.oy == tempMino.get_bottommost_pos(board).oy:
                         possible.append(tempMino)
     return possible # a list of Minos
- 
+
+class State:
+    def __init__(self, curr, hold, queue, board):
+        self.curr = curr #char
+        self.hold = hold #char
+        self.queue = queue #list of chars
+        self.board = board #Board
+        self.cleared = [] #list of chars
+
+
 def findpc(curr, queue, board, height):
     # Make sure the board is pc-able with the height of the stack:
     height = 100
@@ -28,14 +37,15 @@ def findpc(curr, queue, board, height):
         blockcount += board.blocks[row_index].count(1)
         if board.blocks[row_index].count(1) > 0 and row_index < height:
             height = len(board.blocks) - row_index
-
     if blockcount > blockcount or blockcount % 2 != 0:
         return 'Odd amount of blocks!'
     elif (height * 10 - blockcount) // 4 > len([curr] + queue):
         return 'Queue not long enough!'
 
+    print('Searching for PC...')
     final_arrangements = []
-    while not (height * 10 - blockcount) // 4 > len([curr] + queue):
+    seen = []
+    while not (height * 10 - blockcount) // 4 > len([curr] + queue) and height <= 4: # Maximum height to check is 4
         arrangements = []
         for m in possible_positions(curr.type, board, height):
             arrangements.append([m])
@@ -50,7 +60,8 @@ def findpc(curr, queue, board, height):
                     cleared += len(tempboard.clearrows())
 
                     if cleared == height:
-                        return [arrangement]
+                        final_arrangements.append(arrangement)
+                        break
                         
                 
                 for m in possible_positions(mino_type, tempboard, height - cleared):

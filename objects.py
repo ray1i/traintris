@@ -65,9 +65,9 @@ class Mino:
             screen.blit(sprite, (self.x[block] * px + x, self.y[block] * px + y - 20*px))
 
 class Board:
-    def __init__(self):
-        self.blocks = [[0 for s in range(10)] for t in range(40)]
-        self.types = [[None for s in range(10)] for t in range(40)]
+    def __init__(self, height=40, width=10):
+        self.blocks = [[0 for s in range(width)] for t in range(height)]
+        self.types = [[None for s in range(width)] for t in range(height)]
 
     def place_mino(self, mino):
         for i in range(len(mino.x)):

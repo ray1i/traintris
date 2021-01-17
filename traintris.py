@@ -20,6 +20,8 @@ class Traintris:
     def __init__(self, WIDTH, HEIGHT, px):
         pg.init()
         
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption('traintris gmae')
 
@@ -114,6 +116,10 @@ class Traintris:
                             self.hold_mino = Mino(self.curr_mino.type, 1, 20, 0)
                             self.curr_mino = Mino(self.queue.pop(0), 4, 19, 0)
                     self.already_held = True
+
+                ### RESET ###
+                elif event.key == pg.K_RETURN:
+                    self.__init__(self.WIDTH, self.HEIGHT, self.px)
             
             elif event.type == pg.KEYUP:
                 if event.key == pg.K_DOWN: #DOWN
