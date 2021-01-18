@@ -138,7 +138,7 @@ class Traintris:
                 elif 5*self.px + self.boardpos[0]+self.px*14 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
                     pass
                 elif 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 5*self.fontsize <= pg.mouse.get_pos()[1] <= 6*self.fontsize:
-                    self.pcarrangements = pcfinder.findpc(self.curr_mino, self.queue, self.board, 4)
+                    self.pcarrangements = pcfinder.findallpcs(self.curr_mino, self.queue, self.board)
 
     def handle_movement(self):
         if self.arr_start > 0:

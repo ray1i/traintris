@@ -26,49 +26,48 @@ class State:
         self.hold = hold #char
         self.queue = queue #list of chars
         self.board = board #Board
-        self.cleared = [] #list of chars
+        self.cleared = [] #array of chars
+    
+    def updatecleared(self):
+        for row in board.
 
+def findallpcs(curr, hold, queue, board, maxheight_tocheck=4):
+    # Make sure the height of the stack is less than the max height to check:
+    for row in range(len(board.blocks) - maxheight_tocheck):
+        if board.blocks[row] != [0 for c in range(len(board.blocks[row]))]:
+            print(f'Board is higher than {maxheight_tocheck}!')
+            return
 
-def findpc(curr, queue, board, height):
-    # Make sure the board is pc-able with the height of the stack:
-    height = 100
-    blockcount = 0
-    for row_index in range(len(board.blocks)):
-        blockcount += board.blocks[row_index].count(1)
-        if board.blocks[row_index].count(1) > 0 and row_index < height:
-            height = len(board.blocks) - row_index
-    if blockcount > blockcount or blockcount % 2 != 0:
-        return 'Odd amount of blocks!'
-    elif (height * 10 - blockcount) // 4 > len([curr] + queue):
-        return 'Queue not long enough!'
-
-    print('Searching for PC...')
+    # Get the max height of the stack:
+    maxheight = maxheight_tocheck
+    for row in range(len(board.blocks) - maxheight_tocheck, len(board.blocks)):
+        if board.blocks[row] != [0 for c in range(len(board.blocks[row]))]:
+            break
+        else:
+            maxheight -= 1
+    
+    # Find possible PCs from max height of stack to max height to check
     final_arrangements = []
-    seen = []
-    while not (height * 10 - blockcount) // 4 > len([curr] + queue) and height <= 4: # Maximum height to check is 4
-        arrangements = []
-        for m in possible_positions(curr.type, board, height):
-            arrangements.append([m])
-
-        for mino_type in queue:
-            temparr = []
-            for arrangement in arrangements:
-                tempboard = board.copy()
-                cleared = 0
-                for m in arrangement:
-                    tempboard.place_mino(m)
-                    cleared += len(tempboard.clearrows())
-
-                    if cleared == height:
-                        final_arrangements.append(arrangement)
-                        break
-                        
-                
-                for m in possible_positions(mino_type, tempboard, height - cleared):
-                    temparr.append(arrangement + [m])
-            arrangements = deepcopy(temparr)
-
-        final_arrangements += arrangements
-        height += 1
+    for height in range(maxheight, maxheight_tocheck):
+        # Make sure the board is pc-able with the given height:
+        blockcount = 0
+        for row_index in range(-height, 0):
+            blockcount += board.blocks[row_index].count(1)
+        if (height * 10 - blockcount) % 4 == 0 and (height * 10 - blockcount) // 4 >= len([curr] + [hold] + queue):
+            final_arrangements += findpc(curr, hold, queue, board, height)
     
     return final_arrangements
+
+def findpc(curr, hold, queue, board, height):
+    print(f'Searching for PC of height {height}...')
+        
+    seen = []
+    q = [State(curr, hold, queue, board)] # This is not the in-game queue, it is the queue for BFS
+    arrangements = []
+    for m in possible_positions(curr.type, board, height):
+        arrangements.append([m])
+
+    while queue != []:
+        for m in possible_positions(curr.type, board, height):
+
+    return arrangements # list of arrays of strings
