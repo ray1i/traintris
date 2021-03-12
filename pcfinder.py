@@ -29,7 +29,8 @@ class State:
         self.cleared = [] #array of chars
     
     def updatecleared(self):
-        for row in board.
+        pass
+        #for row in board.
 
 def findallpcs(curr, hold, queue, board, maxheight_tocheck=4):
     # Make sure the height of the stack is less than the max height to check:
@@ -69,5 +70,6 @@ def findpc(curr, hold, queue, board, height):
 
     while queue != []:
         for m in possible_positions(curr.type, board, height):
+            pass
 
     return arrangements # list of arrays of strings
