@@ -64,12 +64,14 @@ class Mino:
         if onboard:
             for block in range(len(self.x)):
                 screen.blit(sprite, (self.x[block] * px + x, 19*px -self.y[block] * px + y))
-        else:
+        else: #placed in centre of a 4x4 grid. (x, y) is top left corner of 4x4 grid
             for block in range(len(self.x)):
-                screen.blit(sprite, (self.x[block] * px + x, -self.y[block] * px + y))
+                screen.blit(sprite, (self.x[block]*px + (((len(set(self.x)))%2)/2+1)*px + x, -self.y[block]*px + (2-((len(set(self.y)))%2)/2)*px + y))
 
 class Board:
     def __init__(self, height=40, width=10):
+        self.height = height
+        self.width = width
         self.blocks = [[0 for s in range(width)] for t in range(height)]
         self.types = [[None for s in range(width)] for t in range(height)]
 
