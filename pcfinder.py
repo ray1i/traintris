@@ -74,7 +74,7 @@ def findallpcs(curr, hold, queue, board, maxheight_tocheck=4):
             # Search for all pcs with the given height, append to final_arrangements:
             final_arrangements += findpc(curr, hold, queue, board, height)
 
-    print(len(final_arrangements) + ' PCs found!')
+    print(f'{len(final_arrangements)} PCs found!')
     return final_arrangements #list of 2d array of chars
 
 def findpc(curr, hold, queue, board, height):

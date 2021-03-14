@@ -223,7 +223,6 @@ class Traintris:
                     for j in range(len(self.pcarrangements[self.pcarrselector][i])):
                         if not self.pcarrangements[self.pcarrselector][i][j] is None:
                             self.screen.blit(self.sprites['-' + self.pcarrangements[self.pcarrselector][i][j]], (j * self.px + self.boardpos[0], 19*self.px - i*self.px + self.boardpos[1]))
-        
 
     def draw_all(self):
         self.draw_background()
