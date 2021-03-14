@@ -70,6 +70,7 @@ class Traintris:
         self.already_held = False
 
         self.pcarrangements = None
+        self.pcarrselector = 0
 
     def handle_controls(self):
         #### CONTROLS ####
@@ -134,11 +135,18 @@ class Traintris:
             
             elif event.type == pg.MOUSEBUTTONUP: #TEMPORARY HACK
                 if 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*13 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
-                    pass
+                    if self.pcarrangements != None: 
+                        self.pcarrselector -= 1
+                        if self.pcarrselector < 0:
+                            self.pcarrselector = len(self.pcarrangements) - 1
                 elif 5*self.px + self.boardpos[0]+self.px*14 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 4*self.fontsize <= pg.mouse.get_pos()[1] <= 5*self.fontsize:
-                    pass
+                    if self.pcarrangements != None: 
+                        self.pcarrselector += 1
+                        if self.pcarrselector >= len(self.pcarrangements):
+                            self.pcarrselector = 0
                 elif 5*self.px + self.boardpos[0]+self.px*12 <= pg.mouse.get_pos()[0] <= 5*self.px + self.boardpos[0]+self.px*15 and 5*self.fontsize <= pg.mouse.get_pos()[1] <= 6*self.fontsize:
                     self.pcarrangements = pcfinder.findallpcs(self.curr_mino.type, self.hold_mino.type, self.queue.copy(), self.board.copy())
+                    self.pcarrselector = 0
 
     def handle_movement(self):
         if self.arr_start > 0:
@@ -209,13 +217,12 @@ class Traintris:
 
         if self.pcarrangements != None:
             if self.pcarrangements == []:
-                print('No PC found!')
                 self.pcarrangements = None
             else:
-                for i in range(len(self.pcarrangements[0])):
-                    for j in range(len(self.pcarrangements[0][i])):
-                        if not self.pcarrangements[0][i][j] is None:
-                            self.screen.blit(self.sprites['-' + self.pcarrangements[0][i][j]], (j * self.px + self.boardpos[0], 19*self.px - i*self.px + self.boardpos[1]))
+                for i in range(len(self.pcarrangements[self.pcarrselector])):
+                    for j in range(len(self.pcarrangements[self.pcarrselector][i])):
+                        if not self.pcarrangements[self.pcarrselector][i][j] is None:
+                            self.screen.blit(self.sprites['-' + self.pcarrangements[self.pcarrselector][i][j]], (j * self.px + self.boardpos[0], 19*self.px - i*self.px + self.boardpos[1]))
         
 
     def draw_all(self):
