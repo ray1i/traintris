@@ -31,7 +31,6 @@ class State:
         while notallchecked:
             for i in range(len(self.board.blocks)):
                 if self.board.blocks[i] == [1 for s in range(10)]:
-                    #print(self.curr, self.cleared[i + self.cleared_offset[i]], i, self.cleared_offset[i], i + self.cleared_offset[i])
                     self.cleared[i + self.cleared_offset[i]] = self.board.types[i]
                     self.cleared_offset.pop(i)
                     for j in range(i, len(self.cleared_offset)):
