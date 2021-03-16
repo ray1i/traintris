@@ -31,12 +31,13 @@ class State:
         while notallchecked:
             for i in range(len(self.board.blocks)):
                 if self.board.blocks[i] == [1 for s in range(10)]:
-                    self.height -= 1
                     self.cleared[i + self.cleared_offset[i]] = self.board.types[i]
-                    for j in range(i, self.height):
+                    self.cleared_offset.pop(i)
+                    for j in range(i, len(self.cleared_offset)):
                         self.cleared_offset[j] += 1
                     self.board.blocks.pop(i)
                     self.board.types.pop(i)
+                    self.height -= 1
                     break
                 if i == len(self.board.blocks) - 1:
                     notallchecked = False
@@ -72,13 +73,14 @@ def findallpcs(curr, hold, queue, board, maxheight_tocheck=4):
             # Search for all pcs with the given height, append to final_arrangements:
             final_arrangements += findpc(curr, hold, queue, board, height)
 
+    print(f'{len(final_arrangements)} PCs found!')
     return final_arrangements #list of 2d array of chars
 
 def findpc(curr, hold, queue, board, height):
     print(f'Searching for PC of height {height}...')
         
     seen = []
-    q = [State(curr, hold, queue, board, height), State(curr, hold, queue, board, height)]
+    q = [State(curr, hold, queue.copy(), board.copy(), height), State(curr, hold, queue.copy(), board.copy(), height)]
     arrangements = []
 
     while q != []:
