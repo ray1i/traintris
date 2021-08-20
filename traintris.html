@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        traintris GAME!!!!
+    </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="playground.css">
+</head>
+
+<body>
+
+    <!--<div class='main-content'>-->
+        <a class="back button" href="index.html">BACK</a>
+
+        <div id="traintris-game">
+            <canvas id="hold" class='traintris-canvas' width="128" height="640"></canvas>
+            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
+            <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+
+            <script src="traintris.js"></script>
+
+            <div id="pc-finder">
+                <a class="button" href="#" onclick='find_all_pcs(board, currMino, holdMino, queue.blocks)'>FIND PC</a>
+
+                <canvas id='pc-canvas' width="320" height="640"></canvas>
+
+                <div id="pc-buttons" style="display:flex; justify-content:space-evenly;">
+                    <a class="button" href="#" onclick=result.index_subtract()>PREV</a>
+                    <a class="button" href="#" onclick=result.index_add()>NEXT</a>
+                </div>
+                
+                <p id='pc-result'></p>
+                <p id='pc-progress'></p>
+
+                <script src='pc-finder.js'></script>
+            </div>
+        </div>
+<!--
+        <p id='time'>Time:</p>
+        <p id='score'>Score:</p>
+        <p id='pieces'>Pieces:</p>
+        <p id='pps'>PPS:</p>
+        <p id='lines'>Lines:</p>
+-->
+    <!--</div>-->
+    
+
+</body>
+
+</html>
