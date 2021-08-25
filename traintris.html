@@ -21,10 +21,8 @@
             <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
             <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
 
-            <script src="traintris.js"></script>
-
             <div id="pc-finder">
-                <a class="button" href="#" onclick='find_all_pcs(board, currMino, holdMino, queue.blocks)'>FIND PC</a>
+                <a class="button" href="#" onclick='start_pc_worker()'>FIND PC</a>
 
                 <canvas id='pc-canvas' width="320" height="640"></canvas>
 
@@ -36,7 +34,7 @@
                 <p id='pc-result'></p>
                 <p id='pc-progress'></p>
 
-                <script src='pc-finder.js'></script>
+                <script src="traintris.js"></script>
             </div>
         </div>
 <!--

@@ -359,6 +359,7 @@ window.addEventListener('keyup', function(e){
     }
 })
 
+// this is for drawing on the board.
 var board_elem = document.getElementById('board');
 var drawing = false; // 1 for drawing, 2 for erasing
 board_elem.addEventListener("mousedown", (e) => {
@@ -388,3 +389,156 @@ board_elem.addEventListener("mousemove", (e) => {
 board_elem.addEventListener("mouseup", (e) => {
     drawing = false;
 });
+
+//// =-=-=-= PC-FINDER =-=-=-= ////
+
+// ---- DISPLAY ---- //
+
+var pc_canvas = document.getElementById('pc-canvas');
+var pc_ctx = pc_canvas.getContext('2d');
+pc_ctx.scale(blocksize, blocksize);
+
+window.onload = draw_bg();
+
+function draw_bg(){
+    pc_ctx.drawImage(boardsprite, 0, 0, 10, 20);
+}
+
+var result = {
+    board: board.blocks.map(row => row.slice()),
+    solutions: [],
+    index: 0,
+    error: false,
+    error_message: '',
+    draw(){
+        // -- draw existing pieces -- //
+        pc_ctx.globalAlpha = 1;
+        for (let i=0; i<this.board.length; i++){
+            for (let j=0; j<this.board[i].length; j++){
+                pc_ctx.drawImage(blocksheet, blocksize*minoindexes[this.board[i][j]], 0, blocksize, blocksize, j, 19 - i, 1, 1);
+            }
+        }
+        
+        // -- draw solution pieces -- //
+        pc_ctx.globalAlpha = 0.5;
+        var new_b = Array.from({length: 4}, () => Array(10).fill(0)) // fills with blocks to draw later
+        
+        // offset is to cover for if any lines are cleared in the middle of the solution
+        var offset = Array(4).fill(0);
+        var cleared = Array(4).fill(false)
+        for (let m of this.solutions[this.index]){
+
+            for (let i=0; i<m.blocks.length; i++){
+                new_b[m.o.y + m.blocks[i][1] + offset[m.o.y + m.blocks[i][1]]][m.o.x + m.blocks[i][0]] = m.type;
+            }
+
+            // check if any lines have been cleared, if so, modify offset appropriately
+            var new_offset = offset.slice()
+            for (let row=3; row>=0; row--){
+                if (!cleared[row]){
+                    let sum = 0;
+                    for (let block=0; block<10; block++){
+                        if (this.board[row][block] != 0 || new_b[row][block] != 0){
+                            sum++;
+                        }
+                    }
+                    if (sum === 10){
+                        // modifying offset
+                        new_offset.splice(row-offset[row], 1)
+                        for (let i=row-offset[row]; i<new_offset.length; i++){
+                            new_offset[i]++;
+                        }
+                        new_offset.push(new_offset[new_offset.length - 1])
+                        cleared[row] = true
+                    }
+                }       
+            }
+            offset = new_offset.slice()   
+        }
+        for (var row = 0; row<4; row++){
+            for (var column=0; column<10; column++){
+                pc_ctx.drawImage(blocksheet, blocksize*minoindexes[new_b[row][column]], 0, blocksize, blocksize, 
+                    column, 19 - row, 1, 1);
+            }
+        }
+
+        pc_ctx.globalAlpha = 1;
+    },
+    index_subtract() {
+        this.index--;
+        if (this.index < 0) this.index = this.solutions.length - 1;
+        draw_all();
+    },
+    index_add() {
+        this.index++;
+        if (this.index >= this.solutions.length) this.index = 0;
+        draw_all();
+    }
+};
+
+function draw_all(){
+
+    pc_ctx.globalAlpha = 1;
+    pc_ctx.clearRect(0, 0, pc_canvas.width, pc_canvas.height);
+    draw_bg();
+
+    if (result.solutions.length > 0){
+        result.draw();
+    }
+
+    if (result.solutions.length > 0){
+        document.getElementById('pc-result').innerText = 'Solution ' + (result.index + 1).toString() + ' of ' + result.solutions.length;
+    } else if (result.error) {
+        document.getElementById('pc-result').innerText = result.error_message;
+    } else {
+        document.getElementById('pc-result').innerText = 'No solutions found!';
+    }
+}
+
+var pc_worker; 
+
+function start_pc_worker(){
+    
+    // check if web workers are supported by browser
+    if (typeof(Worker) !== 'undefined'){
+
+        if (pc_worker == null) {
+            pc_worker = new Worker("pc-finder.js");
+        }
+
+        result.error = false;
+        result.error_message = '';
+        result.solutions = [];
+        result.board = board.blocks.map(row => row.slice()); // this copies the blocks of board
+        result.index = 0;
+
+        if (holdMino === null){
+            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: null, queue: queue.blocks})
+        }
+        else {
+            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: holdMino.type, queue: queue.blocks})
+        }
+        
+
+        pc_worker.addEventListener("message", function(e){ 
+
+            if (typeof(e.data) == "string") {
+                result.error = true;
+                result.error_message = e.data;
+            }
+            else {
+                result.solutions = e.data;
+            }
+            
+            draw_all();
+
+            // now that the worker has outstayed its use, it serves no more purpose. kill it
+            pc_worker.terminate();
+            pc_worker = null;
+        });
+    }
+
+    else {
+        document.getElementById('pc-result').innerText = "Web Workers aren't supported by your browser! :(";
+    }
+}
