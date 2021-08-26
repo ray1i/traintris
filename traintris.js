@@ -269,6 +269,7 @@ var keys = new Set();
 var das = {'value': 6, 'start': {'left': null, 'right': null}};
 var arr = {'value': 0, 'start': {'left': null, 'right': null}};
 var sd = {'value': 0, 'start': null}; // soft drop delay
+var recent_direction = null; // so that if both 
 
 //eventually: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
 var controls = {
@@ -287,33 +288,37 @@ function handle_controls(){
     for (let k of keys){
         switch (k){
             case controls.left:
-                if (das.start.left === null) {
-                    das.start.left = frame;
-                    arr.start.left = das.start.left + das.value;
-                    currMino.move(board, -1, 0);
-                } 
-                else if (das.start.left + das.value < frame && frame >= arr.start.left + arr.value){
-                    if (arr.value > 0) {
-                        arr.start.left += arr.value;
+                if (recent_direction === 'left'){
+                    if (das.start.left === null) {
+                        das.start.left = frame;
+                        arr.start.left = das.start.left + das.value;
                         currMino.move(board, -1, 0);
-                    } else if (arr.value === 0) {
-                        // moves mino until it collides with something
-                        while (currMino.move(board, -1, 0)){};
+                    } 
+                    else if (das.start.left + das.value < frame && frame >= arr.start.left + arr.value){
+                        if (arr.value > 0) {
+                            arr.start.left += arr.value;
+                            currMino.move(board, -1, 0);
+                        } else if (arr.value === 0) {
+                            // moves mino until it collides with something
+                            while (currMino.move(board, -1, 0)){};
+                        }
                     }
                 }
                 break;
             case controls.right:
-                if (das.start.right === null) {
-                    das.start.right = frame;
-                    arr.start.right = das.start.right + das.value;
-                    currMino.move(board, 1, 0);
-                } 
-                else if (das.start.right + das.value < frame && frame >= arr.start.right + arr.value){
-                    if (arr.value > 0) {
-                        arr.start.right += arr.value;
+                if (recent_direction === 'right'){
+                    if (das.start.right === null) {
+                        das.start.right = frame;
+                        arr.start.right = das.start.right + das.value;
                         currMino.move(board, 1, 0);
-                    } else if (arr.value === 0) {
-                        while (currMino.move(board, 1, 0)){};
+                    } 
+                    else if (das.start.right + das.value < frame && frame >= arr.start.right + arr.value){
+                        if (arr.value > 0) {
+                            arr.start.right += arr.value;
+                            currMino.move(board, 1, 0);
+                        } else if (arr.value === 0) {
+                            while (currMino.move(board, 1, 0)){};
+                        }
                     }
                 }
                 break;
@@ -373,16 +378,31 @@ function handle_controls(){
 
 window.addEventListener('keydown', function(e){
     if (!e.repeat) keys.add(e.key);
+    if (e.key == controls.left){
+        recent_direction = 'left'
+    }
+    else if (e.key == controls.right){
+        recent_direction = 'right'
+    }
 })
 window.addEventListener('keyup', function(e){
     keys.delete(e.key);
     if (e.key == controls.left){
         das.start.left = null;
         arr.start.left = null;
+        if (keys.has(controls.right)){
+            recent_direction = 'right';
+        }
     }
     else if (e.key == controls.right) {
         das.start.right = null;
         arr.start.right = null;
+        if (keys.has(controls.left)){
+            recent_direction = 'left';
+        }
+    }
+    else if (e.key == controls.soft_drop) {
+        sd.start = null;
     }
 })
 
