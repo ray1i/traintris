@@ -7,26 +7,55 @@
     </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="home.css">
-    <link rel="stylesheet" href="playground.css">
+    <link rel="stylesheet" href="traintris.css">
 </head>
 
 <body>
 
-    <!--<div class='main-content'>-->
-        <div id="traintris-game">
-            <canvas id="hold" class='traintris-canvas' width="128" height="640"></canvas>
-            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
-            <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+    <div class='main-content'>
+        <div id='settings' class="section">
+            
+            <h1 class="section-title">SETTINGS:</h1>
 
-            <div id="pc-finder">
-                <a class="button" href="#" onclick='start_pc_worker()'>FIND PC</a>
+            <h2>TUNING:</h2>
+                <p>DAS:</p>
+                <p>ARR:</p>
+                <p>SD:</p>
+            
+            <h2>CONTROLS: </h2>
+                <p>LEFT:</p>
+                <p>RIGHT:</p>
+                <p>CLOCKWISE:</p>
+                <p>COUNTER-CLOCKWISE:</p>
+                <p>HOLD:</p>
+                <p>SOFT DROP:</p>
+                <p>HARD DROP:</p>
+                <p>RESET:</p>
+
+            <button>SAVE</button>
+            <button>DEFAULT</button>
+
+        </div>
+
+
+        <div id="traintris-game">
+
+            <canvas id="hold" class='traintris-canvas section' width="128" height="128"></canvas>
+
+            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
+
+            <canvas id="queue" class='traintris-canvas section' width="128" height="640"></canvas>
+
+            <div id="pc-finder" class="section">
+                <h1 class="section-title">PC FINDER</h1>
+
+                <button class="button" href="#" onclick='start_pc_worker()'>FIND PC</button>
 
                 <canvas id='pc-canvas' width="320" height="640"></canvas>
 
-                <div id="pc-buttons" style="display:flex; justify-content:space-evenly;">
-                    <a class="button" href="#" onclick=result.index_subtract()>PREV</a>
-                    <a class="button" href="#" onclick=result.index_add()>NEXT</a>
+                <div id="pc-buttons">
+                    <button class="button" onclick=result.index_subtract()>PREV</button>
+                    <button class="button" onclick=result.index_add()>NEXT</button>
                 </div>
                 
                 <p id='pc-result'></p>
@@ -35,15 +64,7 @@
                 <script src="traintris.js"></script>
             </div>
         </div>
-<!--
-        <p id='time'>Time:</p>
-        <p id='score'>Score:</p>
-        <p id='pieces'>Pieces:</p>
-        <p id='pps'>PPS:</p>
-        <p id='lines'>Lines:</p>
--->
-    <!--</div>-->
-    
+    </div>
 
 </body>
 
