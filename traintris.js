@@ -376,7 +376,8 @@ function handle_controls(){
     }
 }
 
-window.addEventListener('keydown', function(e){
+traintris_elem = document.getElementById('traintris-game')
+traintris_elem.addEventListener('keydown', function(e){
     if (!e.repeat) keys.add(e.key);
     if (e.key == controls.left){
         recent_direction = 'left'
@@ -385,7 +386,7 @@ window.addEventListener('keydown', function(e){
         recent_direction = 'right'
     }
 })
-window.addEventListener('keyup', function(e){
+traintris_elem.addEventListener('keyup', function(e){
     keys.delete(e.key);
     if (e.key == controls.left){
         das.start.left = null;

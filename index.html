@@ -17,8 +17,8 @@
             
             <h1 class="section-title">SETTINGS:</h1>
 
-            <table>
-                <h2>TUNING:</h2>
+            <table id='tuning-settings'>
+                <th><h2>TUNING:</h2></th>
                 <tr>
                     <td><p>DAS:</p></td>
                     <td><input type='text'></td>
@@ -33,8 +33,8 @@
                 </tr>
             </table>
 
-            <table>
-                <h2>CONTROLS: </h2>
+            <table id='controls-settings'>
+                <th><h2>CONTROLS:</h2></th>
                 <tr>
                     <td><p>MOVE LEFT:</p></td>
                     <td><input type='text' onkeydown='alert()'></td>
@@ -73,13 +73,15 @@
                 </tr>
             </table>
 
-            <button class='button'>SAVE</button>
-            <button class='button'>DEFAULT</button>
+            <div id='settings-buttons'>
+                <button class='button'>SAVE</button>
+                <button class='button'>DEFAULT</button>
+            </div>
 
         </div>
 
 
-        <div id="traintris-game">
+        <div id="traintris-game" tabindex="1" autofocus>
 
             <canvas id="hold" class='traintris-canvas section' width="128" height="128"></canvas>
 
@@ -88,7 +90,7 @@
             <canvas id="queue" class='traintris-canvas section' width="128" height="640"></canvas>
 
             <div id="pc-finder" class="section">
-                <h1 class="section-title">PC FINDER</h1>
+                <h1 class="section-title" hidden>PC FINDER</h1>
 
                 <button class="button" href="#" onclick='start_pc_worker()'>FIND PC</button>
 
@@ -100,7 +102,7 @@
                 </div>
                 
                 <p id='pc-result'></p>
-                <p id='pc-progress'></p>
+                <p id='pc-progress' hidden></p>
 
                 <script src="traintris.js"></script>
             </div>

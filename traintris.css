@@ -78,6 +78,13 @@ p {
 
 #settings{
     user-select: none;
+    padding: 10px;
+}
+
+#settings-buttons {
+    margin: 10px;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 #traintris-game {
@@ -101,6 +108,7 @@ p {
 #pc-finder {
     display: grid;
     user-select: none;
+    padding: 10px;
 }
 
 #pc-buttons {
