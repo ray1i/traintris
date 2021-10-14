@@ -452,7 +452,7 @@ function set_new_key(control){
     ctrls_buttons[control].addEventListener("keydown", function(e){
         controls[Object.keys(controls)[control]] = e.key;
         ctrls_buttons[control].innerText = e.key.toUpperCase();
-        ctrls_buttons[control].removeEventListener("keydown");
+        this.removeEventListener("keydown", arguments.callee);
     })
     //controls[Object.keys(controls)[i]] = k;
 }
