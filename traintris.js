@@ -275,12 +275,12 @@ var recent_direction = null; // so that if both
 var controls = {
     left: 'ArrowLeft',
     right: 'ArrowRight',
-    soft_drop: 'ArrowDown',
-    hard_drop: ' ',
     c: 'x',
     ccw: 'z',
     one_eighty: 'ArrowUp',
     hold: 'Control',
+    soft_drop: 'ArrowDown',
+    hard_drop: ' ',
     reset: 'F4'
 }
 
@@ -322,29 +322,6 @@ function handle_controls(){
                     }
                 }
                 break;
-            case controls.soft_drop:
-                if (sd.start === null) {
-                    sd.start = frame;
-                    currMino.move(board, 0, -1);
-                } 
-                else if (sd.start + sd.value < frame){
-                    if (sd.value > 0) {
-                        sd.start += sd.value;
-                        currMino.move(board, 0, -1);
-                    } else if (sd.value === 0) {
-                        while (currMino.move(board, 0, -1)){};
-                    }
-                }
-                break;
-            case controls.hard_drop:
-                board.place_mino(currMino.lowest(board));
-                board.clear();
-
-                currMino = new Mino(4, 20, queue.blocks.shift(), 0);
-                if (queue.blocks.length < queue.min_length) queue.extend();
-                
-                keys.delete(controls.hard_drop)
-                break;
             case controls.c:
                 currMino.srs_rotate(board, 1);
                 keys.delete(controls.c);
@@ -368,6 +345,29 @@ function handle_controls(){
                 }
                 keys.delete(controls.hold);
                 break;
+            case controls.soft_drop:
+                if (sd.start === null) {
+                    sd.start = frame;
+                    currMino.move(board, 0, -1);
+                } 
+                else if (sd.start + sd.value < frame){
+                    if (sd.value > 0) {
+                        sd.start += sd.value;
+                        currMino.move(board, 0, -1);
+                    } else if (sd.value === 0) {
+                        while (currMino.move(board, 0, -1)){};
+                    }
+                }
+                break;
+            case controls.hard_drop:
+                board.place_mino(currMino.lowest(board));
+                board.clear();
+
+                currMino = new Mino(4, 20, queue.blocks.shift(), 0);
+                if (queue.blocks.length < queue.min_length) queue.extend();
+                
+                keys.delete(controls.hard_drop)
+                break;
             case controls.reset:
                 start();
                 keys.delete(controls.reset);
@@ -376,6 +376,7 @@ function handle_controls(){
     }
 }
 
+// this is for keyboard controls for the game.
 traintris_elem = document.getElementById('traintris-game')
 traintris_elem.addEventListener('keydown', function(e){
     if (!e.repeat) keys.add(e.key);
@@ -407,7 +408,7 @@ traintris_elem.addEventListener('keyup', function(e){
     }
 })
 
-// this is for drawing on the board.
+// this is for drawing on the board with mouse.
 var board_elem = document.getElementById('board');
 var drawing = false; // 1 for drawing, 2 for erasing
 board_elem.addEventListener("mousedown", (e) => {
@@ -437,6 +438,22 @@ board_elem.addEventListener("mousemove", (e) => {
 board_elem.addEventListener("mouseup", (e) => {
     drawing = false;
 });
+
+// this is for setting new controls
+function set_new_key(control, k){
+    switch (control){
+        case "left": controls.left = k; break;
+        case "right": controls.right = k; break;
+        case "c": controls.left = k; break;
+        case "ccw": controls.right = k; break;
+        case "one_eighty": controls.left = k; break;
+        case "hold": controls.right = k; break;
+        case "soft_drop": controls.left = k; break;
+        case "hard_drop": controls.right = k; break;
+        case "reset": controls.left = k; break;
+    }
+}
+
 
 //// =-=-=-= PC-FINDER =-=-=-= ////
 
