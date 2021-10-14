@@ -275,8 +275,8 @@ var recent_direction = null; // so that if both
 var controls = {
     left: 'ArrowLeft',
     right: 'ArrowRight',
-    c: 'x',
     ccw: 'z',
+    c: 'x',
     one_eighty: 'ArrowUp',
     hold: 'Control',
     soft_drop: 'ArrowDown',
@@ -322,13 +322,13 @@ function handle_controls(){
                     }
                 }
                 break;
-            case controls.c:
-                currMino.srs_rotate(board, 1);
-                keys.delete(controls.c);
-                break;
             case controls.ccw:
                 currMino.srs_rotate(board, 3);
                 keys.delete(controls.ccw);
+                break;
+            case controls.c:
+                currMino.srs_rotate(board, 1);
+                keys.delete(controls.c);
                 break;
             case controls.one_eighty:
                 currMino.srs_rotate(board, 2);
@@ -439,21 +439,23 @@ board_elem.addEventListener("mouseup", (e) => {
     drawing = false;
 });
 
-// this is for setting new controls
-function set_new_key(control, k){
-    switch (control){
-        case "left": controls.left = k; break;
-        case "right": controls.right = k; break;
-        case "c": controls.left = k; break;
-        case "ccw": controls.right = k; break;
-        case "one_eighty": controls.left = k; break;
-        case "hold": controls.right = k; break;
-        case "soft_drop": controls.left = k; break;
-        case "hard_drop": controls.right = k; break;
-        case "reset": controls.left = k; break;
-    }
-}
 
+// this is for putting text on the controls.
+ctrls_buttons = document.getElementsByClassName('controls-button')
+for (let i=0; i<ctrls_buttons.length; i++){
+    ctrls_buttons[i].innerText = controls[Object.keys(controls)[i]].toUpperCase();
+}
+// this is for setting new controls
+function set_new_key(control){
+
+    ctrls_buttons[control].innerText = '[PRESS NEW KEY]'
+    ctrls_buttons[control].addEventListener("keydown", function(e){
+        controls[Object.keys(controls)[control]] = e.key;
+        ctrls_buttons[control].innerText = e.key.toUpperCase();
+        ctrls_buttons[control].removeEventListener("keydown");
+    })
+    //controls[Object.keys(controls)[i]] = k;
+}
 
 //// =-=-=-= PC-FINDER =-=-=-= ////
 
