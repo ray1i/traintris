@@ -275,12 +275,12 @@ var recent_direction = null; // so that if both
 var controls = {
     left: 'ArrowLeft',
     right: 'ArrowRight',
-    soft_drop: 'ArrowDown',
-    hard_drop: ' ',
-    c: 'x',
     ccw: 'z',
+    c: 'x',
     one_eighty: 'ArrowUp',
     hold: 'Control',
+    soft_drop: 'ArrowDown',
+    hard_drop: ' ',
     reset: 'F4'
 }
 
@@ -322,6 +322,29 @@ function handle_controls(){
                     }
                 }
                 break;
+            case controls.ccw:
+                currMino.srs_rotate(board, 3);
+                keys.delete(controls.ccw);
+                break;
+            case controls.c:
+                currMino.srs_rotate(board, 1);
+                keys.delete(controls.c);
+                break;
+            case controls.one_eighty:
+                currMino.srs_rotate(board, 2);
+                keys.delete(controls.one_eighty);
+                break;
+            case controls.hold:
+                if (holdMino === null) {
+                    holdMino = new Mino(0, 0, currMino.type);
+                    currMino = new Mino(4, 20, queue.blocks.shift());
+                } else {
+                    var temp = holdMino.type;
+                    holdMino = new Mino(0, 0, currMino.type);
+                    currMino = new Mino(4, 20, temp);
+                }
+                keys.delete(controls.hold);
+                break;
             case controls.soft_drop:
                 if (sd.start === null) {
                     sd.start = frame;
@@ -345,29 +368,6 @@ function handle_controls(){
                 
                 keys.delete(controls.hard_drop)
                 break;
-            case controls.c:
-                currMino.srs_rotate(board, 1);
-                keys.delete(controls.c);
-                break;
-            case controls.ccw:
-                currMino.srs_rotate(board, 3);
-                keys.delete(controls.ccw);
-                break;
-            case controls.one_eighty:
-                currMino.srs_rotate(board, 2);
-                keys.delete(controls.one_eighty);
-                break;
-            case controls.hold:
-                if (holdMino === null) {
-                    holdMino = new Mino(0, 0, currMino.type);
-                    currMino = new Mino(4, 20, queue.blocks.shift());
-                } else {
-                    var temp = holdMino.type;
-                    holdMino = new Mino(0, 0, currMino.type);
-                    currMino = new Mino(4, 20, temp);
-                }
-                keys.delete(controls.hold);
-                break;
             case controls.reset:
                 start();
                 keys.delete(controls.reset);
@@ -376,7 +376,9 @@ function handle_controls(){
     }
 }
 
-window.addEventListener('keydown', function(e){
+// this is for keyboard controls for the game.
+traintris_elem = document.getElementById('traintris-game')
+traintris_elem.addEventListener('keydown', function(e){
     if (!e.repeat) keys.add(e.key);
     if (e.key == controls.left){
         recent_direction = 'left'
@@ -385,7 +387,7 @@ window.addEventListener('keydown', function(e){
         recent_direction = 'right'
     }
 })
-window.addEventListener('keyup', function(e){
+traintris_elem.addEventListener('keyup', function(e){
     keys.delete(e.key);
     if (e.key == controls.left){
         das.start.left = null;
@@ -406,7 +408,7 @@ window.addEventListener('keyup', function(e){
     }
 })
 
-// this is for drawing on the board.
+// this is for drawing on the board with mouse.
 var board_elem = document.getElementById('board');
 var drawing = false; // 1 for drawing, 2 for erasing
 board_elem.addEventListener("mousedown", (e) => {
@@ -436,6 +438,24 @@ board_elem.addEventListener("mousemove", (e) => {
 board_elem.addEventListener("mouseup", (e) => {
     drawing = false;
 });
+
+
+// this is for putting text on the controls.
+ctrls_buttons = document.getElementsByClassName('controls-button')
+for (let i=0; i<ctrls_buttons.length; i++){
+    ctrls_buttons[i].innerText = controls[Object.keys(controls)[i]].toUpperCase();
+}
+// this is for setting new controls
+function set_new_key(control){
+
+    ctrls_buttons[control].innerText = '[PRESS NEW KEY]'
+    ctrls_buttons[control].addEventListener("keydown", function(e){
+        controls[Object.keys(controls)[control]] = e.key;
+        ctrls_buttons[control].innerText = e.key.toUpperCase();
+        ctrls_buttons[control].removeEventListener("keydown");
+    })
+    //controls[Object.keys(controls)[i]] = k;
+}
 
 //// =-=-=-= PC-FINDER =-=-=-= ////
 

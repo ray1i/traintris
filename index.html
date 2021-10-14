@@ -7,43 +7,97 @@
     </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="home.css">
-    <link rel="stylesheet" href="playground.css">
+    <link rel="stylesheet" href="traintris.css">
 </head>
 
 <body>
 
-    <!--<div class='main-content'>-->
-        <div id="traintris-game">
-            <canvas id="hold" class='traintris-canvas' width="128" height="640"></canvas>
-            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
-            <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+    <div class='main-content'>
+        <div id='settings' class="section">
+            
+            <h1 class="section-title">SETTINGS:</h1>
 
-            <div id="pc-finder">
-                <a class="button" href="#" onclick='start_pc_worker()'>FIND PC</a>
+            <table id='tuning-settings'>
+                <th><h2>TUNING:</h2></th>
+                <tr>
+                    <td><p>DAS:</p></td>
+                    <td><input type='text'></td>
+                </tr>
+                <tr>
+                    <td><p>ARR:</p></td>
+                    <td><input type='text'></td>
+                </tr>
+                <tr>
+                    <td><p>SD:</p></td>
+                    <td><input type='text'></td>
+                </tr>
+            </table>
+
+            <h2>CONTROLS:</h2>
+            <div id='controls-settings'>
+                <p>MOVE LEFT:</p>
+                <button class="controls-button" onclick='set_new_key(0)'>---</button>
+
+                <p>MOVE RIGHT:</p>
+                <button class="controls-button" onclick='set_new_key(1)'>---</button>
+
+                <p>ROTATE LEFT:</p>
+                <button class="controls-button" onclick='set_new_key(2)'>---</button>
+
+                <p>ROTATE RIGHT:</p>
+                <button class="controls-button" onclick='set_new_key(3)'>---</button>
+
+                <p>ROTATE 180:</p>
+                <button class="controls-button" onclick='set_new_key(4)'>---</button>
+
+                <p>HOLD PIECE:</p>
+                <button class="controls-button" onclick='set_new_key(5)'>---</button>
+
+                <p>SOFT DROP:</p>
+                <button class="controls-button" onclick='set_new_key(6)'>---</button>
+
+                <p>HARD DROP:</p>
+                <button class="controls-button" onclick='set_new_key(7)'>---</button>
+
+                <p>RESET BOARD:</p>
+                <button class="controls-button" onclick='set_new_key(8)'>---</button>
+            </div>
+
+            <div id='settings-buttons'>
+                <button class='button'>SAVE</button>
+                <button class='button'>DEFAULT</button>
+            </div>
+
+        </div>
+
+
+        <div id="traintris-game" tabindex="1" autofocus>
+
+            <canvas id="hold" class='traintris-canvas section' width="128" height="128"></canvas>
+
+            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
+
+            <canvas id="queue" class='traintris-canvas section' width="128" height="640"></canvas>
+
+            <div id="pc-finder" class="section">
+                <h1 class="section-title" hidden>PC FINDER</h1>
+
+                <button class="button" href="#" onclick='start_pc_worker()'>FIND PC</button>
 
                 <canvas id='pc-canvas' width="320" height="640"></canvas>
 
-                <div id="pc-buttons" style="display:flex; justify-content:space-evenly;">
-                    <a class="button" href="#" onclick=result.index_subtract()>PREV</a>
-                    <a class="button" href="#" onclick=result.index_add()>NEXT</a>
+                <div id="pc-buttons">
+                    <button class="button" onclick=result.index_subtract()>PREV</button>
+                    <button class="button" onclick=result.index_add()>NEXT</button>
                 </div>
                 
                 <p id='pc-result'></p>
-                <p id='pc-progress'></p>
+                <p id='pc-progress' hidden></p>
 
                 <script src="traintris.js"></script>
             </div>
         </div>
-<!--
-        <p id='time'>Time:</p>
-        <p id='score'>Score:</p>
-        <p id='pieces'>Pieces:</p>
-        <p id='pps'>PPS:</p>
-        <p id='lines'>Lines:</p>
--->
-    <!--</div>-->
-    
+    </div>
 
 </body>
 
