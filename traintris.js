@@ -532,11 +532,15 @@ var result = {
         pc_ctx.globalAlpha = 1;
     },
     index_subtract() {
+        traintris_elem.focus();
+
         this.index--;
         if (this.index < 0) this.index = this.solutions.length - 1;
         draw_all();
     },
     index_add() {
+        traintris_elem.focus();
+        
         this.index++;
         if (this.index >= this.solutions.length) this.index = 0;
         draw_all();
@@ -565,7 +569,8 @@ function draw_all(){
 var pc_worker; 
 
 function start_pc_worker(){
-    
+    //document.getElementById("pc-start-button").blur();
+    traintris_elem.focus();
     // check if web workers are supported by browser
     if (typeof(Worker) !== 'undefined'){
 
