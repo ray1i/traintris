@@ -21,17 +21,22 @@
                 <th><h2>TUNING:</h2></th>
                 <tr>
                     <td><p>DAS:</p></td>
-                    <td><input type='text'></td>
+                    <td><input class='tuning-box' type='text'></td>
                 </tr>
                 <tr>
                     <td><p>ARR:</p></td>
-                    <td><input type='text'></td>
+                    <td><input class='tuning-box' type='text'></td>
                 </tr>
                 <tr>
                     <td><p>SD:</p></td>
-                    <td><input type='text'></td>
+                    <td><input class='tuning-box' type='text'></td>
                 </tr>
             </table>
+            
+            <div id='settings-buttons'>
+                <button class='button' onclick='save_tuning()'>SAVE</button>
+                <button class='button'>DEFAULT</button>
+            </div>
 
             <h2>CONTROLS:</h2>
             <div id='controls-settings'>
@@ -61,11 +66,6 @@
 
                 <p>RESET BOARD:</p>
                 <button class="controls-button" onclick='set_new_key(8)'>---</button>
-            </div>
-
-            <div id='settings-buttons'>
-                <button class='button'>SAVE</button>
-                <button class='button'>DEFAULT</button>
             </div>
 
         </div>

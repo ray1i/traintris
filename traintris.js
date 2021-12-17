@@ -457,6 +457,23 @@ function set_new_key(control){
     //controls[Object.keys(controls)[i]] = k;
 }
 
+// this is for putting text on tuning.
+tuning_boxes = document.getElementsByClassName('tuning-box')
+tuning_boxes[0].value = das.value
+tuning_boxes[1].value = arr.value
+tuning_boxes[2].value = sd.value
+// this is for setting tuning settings.
+function save_tuning(){
+    if (isNaN(tuning_boxes[0].value) || isNaN(tuning_boxes[1].value) || isNaN(tuning_boxes[2].value)){
+        alert('Tuning value must be number!')
+    }
+    else {
+        das.value = parseInt(tuning_boxes[0].value)
+        arr.value = parseInt(tuning_boxes[1].value)
+        sd.value = parseInt(tuning_boxes[2].value)
+    }
+}
+
 //// =-=-=-= PC-FINDER =-=-=-= ////
 
 // ---- DISPLAY ---- //
