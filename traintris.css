@@ -81,6 +81,12 @@ p {
     padding: 10px;
 }
 
+.tuning-box{
+    background-color: rgb(165, 165, 165);
+    padding: 6px;
+    text-align: center;
+}
+
 #settings-buttons {
     margin: 10px;
     display: flex;
