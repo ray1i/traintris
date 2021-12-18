@@ -44,24 +44,6 @@ const single_perms = { //to ensure identical minos aren't checked twice (e.g. s-
     "S": [0, 1],
 };
 
-function get_all_lowest(m_type, b, height=4){
-    // m_type is string (char)
-    var result = [];
-
-    for (var perm of single_perms[m_type]){
-        for (var x = 0; x < 10; x++){
-            for (var y = 0; y < height; y++){
-                tempmino = new Mino(x, y, m_type, perm);
-                if (!collide(b, tempmino) && is_lowest(b, tempmino)){
-                    result.push(tempmino);
-                }
-            }
-        }
-    }
-
-    return result; //returns array of Minos
-}
-
 function is_lowest(b, m){
     // m is Mino, b is Board
     for (let block of m.blocks){
@@ -73,6 +55,47 @@ function is_lowest(b, m){
         }
     }
     return false;
+}
+
+function get_all_lowest(m_type, b, height=4){
+    // m_type is string (char)
+    var result = [];
+
+    for (var perm of single_perms[m_type]){
+        for (var x = 0; x < 10; x++){
+            for (var y = 0; y < height; y++){
+                tempmino = new Mino(x, y, m_type, perm);
+                if (!collide(b, tempmino) && is_lowest(b, tempmino) && is_reachable(b, tempmino, 0)){
+                    result.push(tempmino);
+                }
+            }
+        }
+    }
+    return result; //returns array of Minos
+}
+
+// b is board, m is Mino
+function is_reachable(b, m, iter=0){
+    // check if we've already done too much iterations of this
+    if (iter > 4){
+        return false;
+    }
+    // check if the mino is already collided with the board
+    else if (collide(b, m)){
+        return false
+    }
+    // check if it can just go straight up
+    var can_go_up = true
+    for (let block of m.blocks){
+        for (let i=0; i<(b.blocks.length-(m.o.y + block[1])); i++){
+            if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
+                can_go_up = false;
+            }
+        }
+    }
+    if (can_go_up) return true;
+
+
 }
 
 function is_pcable(b, queue, height=4){// check if board is pc-able given queue
@@ -139,10 +162,6 @@ function get_all_pcs(b, queue, hold, history, height=4) {
             get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
         }
     }
-}
-
-function is_reachable(b, m){
-    //tood: add reachable check
 }
 
 function copy_board(b, height=4){

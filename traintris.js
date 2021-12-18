@@ -588,43 +588,48 @@ var pc_worker;
 function start_pc_worker(){
     //document.getElementById("pc-start-button").blur();
     traintris_elem.focus();
+
     // check if web workers are supported by browser
     if (typeof(Worker) !== 'undefined'){
 
+        // check if there is already another worker active
         if (pc_worker == null) {
             pc_worker = new Worker("pc-finder.js");
-        }
 
-        result.error = false;
-        result.error_message = '';
-        result.solutions = [];
-        result.board = board.blocks.map(row => row.slice()); // this copies the blocks of board
-        result.index = 0;
+            result.error = false;
+            result.error_message = '';
+            result.solutions = [];
+            result.board = board.blocks.map(row => row.slice()); // this copies the blocks of board
+            result.index = 0;
 
-        if (holdMino === null){
-            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: null, queue: queue.blocks})
-        }
-        else {
-            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: holdMino.type, queue: queue.blocks})
-        }
-        
-
-        pc_worker.addEventListener("message", function(e){ 
-
-            if (typeof(e.data) == "string") {
-                result.error = true;
-                result.error_message = e.data;
+            if (holdMino === null){
+                pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: null, queue: queue.blocks})
             }
             else {
-                result.solutions = e.data;
+                pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: holdMino.type, queue: queue.blocks})
             }
             
-            draw_all();
 
-            // now that the worker has outstayed its use, it serves no more purpose. kill it
-            pc_worker.terminate();
-            pc_worker = null;
-        });
+            pc_worker.addEventListener("message", function(e){ 
+
+                if (typeof(e.data) == "string") {
+                    result.error = true;
+                    result.error_message = e.data;
+                }
+                else {
+                    result.solutions = e.data;
+                }
+                
+                draw_all();
+
+                // kill worker
+                pc_worker.terminate();
+                pc_worker = null;
+            });
+        }
+        else {
+            document.getElementById('pc-result').innerText = "Another search is in progress!";
+        }
     }
 
     else {
