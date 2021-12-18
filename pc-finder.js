@@ -82,19 +82,32 @@ function is_reachable(b, m, iter=0){
     }
     // check if the mino is already collided with the board
     else if (collide(b, m)){
-        return false
+        return false;
     }
     // check if it can just go straight up
     var can_go_up = true
     for (let block of m.blocks){
-        for (let i=0; i<(b.blocks.length-(m.o.y + block[1])); i++){
-            if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
-                can_go_up = false;
+        if (can_go_up){
+            for (let i=0; i<b.blocks.length; i++){
+                try {
+                    if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
+                        can_go_up = false;
+                        break;
+                    }
+                } catch (IndexError) {} // pass, means the block is probably above the board
             }
         }
+        else break;
     }
     if (can_go_up) return true;
-
+    // check each dir: up, left, right (no down)
+    if (is_reachable(b, m.copy(0, 1), iter+1) || is_reachable(b, m.copy(-1, 0), iter+1), is_reachable(b, m.copy(1, 0), iter+1)){
+        return true;
+    }
+    // check each rotation
+    else {
+        return true;
+    }
 
 }
 
