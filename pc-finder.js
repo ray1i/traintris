@@ -26,6 +26,9 @@ self.onmessage = function (state){
         console.log('searching for pcs...')
 
         get_all_pcs(new_b, new_queue.slice(), new_hold, new Array);
+
+        solutions = eliminate_duplicate_solutions(new_b, solutions);
+
     }
 
     self.postMessage(solutions)
@@ -75,6 +78,13 @@ function get_all_lowest(m_type, b, height=4){
 }
 
 // b is board, m is Mino
+// TODO:
+// fix 
+// G I I I I G
+// G G G   G G
+// G G G   G G
+// G G     G G
+// J should not fit in there, but it does
 function is_reachable(b, m, iter=0){
     // check if we've already done too much iterations of this
     if (iter > 4){
@@ -197,6 +207,64 @@ function get_all_pcs(b, queue, hold, history, height=4) {
             }
         }
     }
+}
+
+function eliminate_duplicate_solutions(b, sols){
+
+    var new_sols = new Array;
+    var seen = new Array;
+
+    for (let s of sols){
+
+        let new_b = Array.from({length: 4}, () => Array(10).fill(0)) // fills with blocks
+         // offset is to cover for if any lines are cleared in the middle of the solution
+        let offset = Array(4).fill(0);
+        let cleared = Array(4).fill(false)
+        for (let m of s){
+
+            for (let i=0; i<m.blocks.length; i++){
+                new_b[m.o.y + m.blocks[i][1] + offset[m.o.y + m.blocks[i][1]]][m.o.x + m.blocks[i][0]] = m.type;
+            }
+
+            // check if any lines have been cleared, if so, modify offset appropriately
+            let new_offset = offset.slice()
+            for (let row=3; row>=0; row--){
+                if (!cleared[row]){
+                    let sum = 0;
+                    for (let block=0; block<10; block++){
+                        if (b.blocks[row][block] != 0 || new_b[row][block] != 0){
+                            sum++;
+                        }
+                    }
+                    if (sum === 10){
+                        // modifying offset
+                        new_offset.splice(row-offset[row], 1)
+                        for (let i=row-offset[row]; i<new_offset.length; i++){
+                            new_offset[i]++;
+                        }
+                        new_offset.push(new_offset[new_offset.length - 1])
+                        cleared[row] = true
+                    }
+                }       
+            }
+            offset = new_offset.slice()
+        }
+
+        let was_seen = false; 
+        for (let arrangement of seen){
+            //console.log(new_b, arrangement)
+            if (JSON.stringify(new_b) === JSON.stringify(arrangement)) {
+                was_seen = true;
+                break;
+            }
+        }
+        if (!was_seen){
+            seen.push(new_b);
+            new_sols.push(s);
+        }
+    }
+
+    return new_sols;
 }
 
 function copy_board(b, height=4){

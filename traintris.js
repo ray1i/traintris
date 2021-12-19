@@ -594,6 +594,9 @@ function start_pc_worker(){
 
         // check if there is already another worker active
         if (pc_worker == null) {
+
+            document.getElementById('pc-result').innerText = "Searching...";
+
             pc_worker = new Worker("pc-finder.js");
 
             result.error = false;
