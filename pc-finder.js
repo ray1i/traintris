@@ -80,10 +80,16 @@ function is_reachable(b, m, iter=0){
     if (iter > 4){
         return false;
     }
+
     // check if the mino is already collided with the board
-    else if (collide(b, m)){
-        return false;
+    // this is collide() from main file, modified so blocks above board don't trigger collision
+    for (let block of m.blocks){
+        if (m.o.y + block[1] >= b.height){}
+        else if (m.o.y + block[1] < 0 || b.blocks[m.o.y + block[1]][m.o.x + block[0]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]]) {
+            return false;
+        }
     }
+
     // check if it can just go straight up
     var can_go_up = true
     for (let block of m.blocks){
@@ -100,13 +106,27 @@ function is_reachable(b, m, iter=0){
         else break;
     }
     if (can_go_up) return true;
+
     // check each dir: up, left, right (no down)
     if (is_reachable(b, m.copy(0, 1), iter+1) || is_reachable(b, m.copy(-1, 0), iter+1), is_reachable(b, m.copy(1, 0), iter+1)){
         return true;
     }
-    // check each rotation
+
+    // check each rotation, don't check if O piece
+    else if (m.type != 'O'){
+        for (let rot=1; rot<4; rot++){
+            for (let os=0; os<5; os++){
+                let oldperm = (m.perm + rot + 4) % 4
+                let offset = [offsets[m.type][oldperm][os][0] - offsets[m.type][m.perm][os][0], offsets[m.type][oldperm][os][1] - offsets[m.type][m.perm][os][1]]
+
+                if (is_reachable(b, m.copy(-offset[0], -offset[1], rot), iter+1)) {
+                    return true;
+                }
+            }
+        }
+    }
     else {
-        return true;
+        return false;
     }
 
 }
@@ -169,10 +189,12 @@ function get_all_pcs(b, queue, hold, history, height=4) {
             get_all_pcs(new_new_b, queue.slice(1), hold, history.concat(mino), new_new_b.height)
         }
 
-        // hold mino as next
-        for (let mino of get_all_lowest(hold, new_b, new_b.height)){
-            new_new_b = copy_board(new_b, new_b.height)
-            get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
+        if (queue[0] != hold){
+            // hold mino as next
+            for (let mino of get_all_lowest(hold, new_b, new_b.height)){
+                new_new_b = copy_board(new_b, new_b.height)
+                get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
+            }
         }
     }
 }
@@ -289,11 +311,11 @@ class Mino {
                 this.blocks[j] = [this.blocks[j][1], -this.blocks[j][0]];
             }
         }
-        this.perm = this.perm + n - (Math.floor((this.perm + n)/4) * 4) // dumb math stuff just converts values that are <0 or >3
+        this.perm = (this.perm + n + 4) % 4
     };
 
     srs_rotate(b, n) {
-        var newperm = this.perm + n - (Math.floor((this.perm + n)/4) * 4)
+        var newperm = (this.perm + n + 4) % 4
         for (let i=0; i<5; i++){
             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
             if (!collide(b, this.copy(offset[0], offset[1], n))){
@@ -341,3 +363,5 @@ function collide(b, m){ // this function is copied from the main file
     }
     return false;
 }
+
+

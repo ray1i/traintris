@@ -146,11 +146,11 @@ class Mino {
                 this.blocks[j] = [this.blocks[j][1], -this.blocks[j][0]];
             }
         }
-        this.perm = this.perm + n - (Math.floor((this.perm + n)/4) * 4) // dumb math stuff just converts values that are <0 or >3
+        this.perm = (this.perm + n + 4) % 4
     };
 
     srs_rotate(b, n) {
-        var newperm = this.perm + n - (Math.floor((this.perm + n)/4) * 4)
+        var newperm = (this.perm + n + 4) % 4
         for (let i=0; i<5; i++){
             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
             if (!collide(b, this.copy(offset[0], offset[1], n))){
