@@ -146,11 +146,11 @@ class Mino {
                 this.blocks[j] = [this.blocks[j][1], -this.blocks[j][0]];
             }
         }
-        this.perm = this.perm + n - (Math.floor((this.perm + n)/4) * 4) // dumb math stuff just converts values that are <0 or >3
+        this.perm = (this.perm + n + 4) % 4
     };
 
     srs_rotate(b, n) {
-        var newperm = this.perm + n - (Math.floor((this.perm + n)/4) * 4)
+        var newperm = (this.perm + n + 4) % 4
         for (let i=0; i<5; i++){
             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
             if (!collide(b, this.copy(offset[0], offset[1], n))){
@@ -588,43 +588,51 @@ var pc_worker;
 function start_pc_worker(){
     //document.getElementById("pc-start-button").blur();
     traintris_elem.focus();
+
     // check if web workers are supported by browser
     if (typeof(Worker) !== 'undefined'){
 
+        // check if there is already another worker active
         if (pc_worker == null) {
+
+            document.getElementById('pc-result').innerText = "Searching...";
+
             pc_worker = new Worker("pc-finder.js");
-        }
 
-        result.error = false;
-        result.error_message = '';
-        result.solutions = [];
-        result.board = board.blocks.map(row => row.slice()); // this copies the blocks of board
-        result.index = 0;
+            result.error = false;
+            result.error_message = '';
+            result.solutions = [];
+            result.board = board.blocks.map(row => row.slice()); // this copies the blocks of board
+            result.index = 0;
 
-        if (holdMino === null){
-            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: null, queue: queue.blocks})
-        }
-        else {
-            pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: holdMino.type, queue: queue.blocks})
-        }
-        
-
-        pc_worker.addEventListener("message", function(e){ 
-
-            if (typeof(e.data) == "string") {
-                result.error = true;
-                result.error_message = e.data;
+            if (holdMino === null){
+                pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: null, queue: queue.blocks})
             }
             else {
-                result.solutions = e.data;
+                pc_worker.postMessage({b: board.blocks, curr: currMino.type, hold: holdMino.type, queue: queue.blocks})
             }
             
-            draw_all();
 
-            // now that the worker has outstayed its use, it serves no more purpose. kill it
-            pc_worker.terminate();
-            pc_worker = null;
-        });
+            pc_worker.addEventListener("message", function(e){ 
+
+                if (typeof(e.data) == "string") {
+                    result.error = true;
+                    result.error_message = e.data;
+                }
+                else {
+                    result.solutions = e.data;
+                }
+                
+                draw_all();
+
+                // kill worker
+                pc_worker.terminate();
+                pc_worker = null;
+            });
+        }
+        else {
+            document.getElementById('pc-result').innerText = "Another search is in progress!";
+        }
     }
 
     else {

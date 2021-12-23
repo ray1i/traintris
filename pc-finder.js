@@ -26,53 +26,15 @@ self.onmessage = function (state){
         console.log('searching for pcs...')
 
         get_all_pcs(new_b, new_queue.slice(), new_hold, new Array);
+
+        solutions = eliminate_duplicate_solutions(new_b, solutions);
+
     }
 
     self.postMessage(solutions)
 
     console.log('finished.')
 
-}
-
-const single_perms = { //to ensure identical minos aren't checked twice (e.g. s-piece flipped 180)
-    "I": [0, 1],
-    "O": [0],
-    "T": [0, 1, 2, 3],
-    "L": [0, 1, 2, 3],
-    "J": [0, 1, 2, 3],
-    "Z": [0, 1],
-    "S": [0, 1],
-};
-
-function get_all_lowest(m_type, b, height=4){
-    // m_type is string (char)
-    var result = [];
-
-    for (var perm of single_perms[m_type]){
-        for (var x = 0; x < 10; x++){
-            for (var y = 0; y < height; y++){
-                tempmino = new Mino(x, y, m_type, perm);
-                if (!collide(b, tempmino) && is_lowest(b, tempmino)){
-                    result.push(tempmino);
-                }
-            }
-        }
-    }
-
-    return result; //returns array of Minos
-}
-
-function is_lowest(b, m){
-    // m is Mino, b is Board
-    for (let block of m.blocks){
-        if (m.o.y + block[1] === 0){
-            return true;
-        } 
-        else if (b.blocks[m.o.y + block[1] - 1][m.o.x + block[0]]){
-            return true;
-        }
-    }
-    return false;
 }
 
 function is_pcable(b, queue, height=4){// check if board is pc-able given queue
@@ -107,6 +69,110 @@ function is_pcable(b, queue, height=4){// check if board is pc-able given queue
     return true;
 }
 
+/* const single_perms = { //to ensure identical minos aren't checked twice (e.g. s-piece flipped 180)
+    "I": [0, 1],
+    "O": [0],
+    "T": [0, 1, 2, 3],
+    "L": [0, 1, 2, 3],
+    "J": [0, 1, 2, 3],
+    "Z": [0, 1],
+    "S": [0, 1],
+}; */
+
+function is_lowest(b, m){
+    // m is Mino, b is Board
+    for (let block of m.blocks){
+        if (m.o.y + block[1] === 0){
+            return true;
+        } 
+        else if (b.blocks[m.o.y + block[1] - 1][m.o.x + block[0]]){
+            return true;
+        }
+    }
+    return false;
+}
+
+function get_all_lowest(m_type, b, height=4){
+    // m_type is string (char)
+    var result = [];
+
+    //for (var perm of single_perms[m_type]){
+    for (let perm=0; perm<4; perm++){
+        for (var x = 0; x < 10; x++){
+            for (var y = 0; y < height; y++){
+                tempmino = new Mino(x, y, m_type, perm);
+                if (!collide(b, tempmino) && is_lowest(b, tempmino) && is_reachable(b, tempmino, 0)){
+                    result.push(tempmino);
+                }
+            }
+        }
+    }
+    return result; //returns array of Minos
+}
+
+function is_reachable(b, m, iter=0){
+    // check if we've already done too much iterations of this, currently set to maximum 3 but can add more
+    if (iter > 4){
+        return false;
+    }
+
+    // check if the mino is already collided with the board
+    // this is collide() from main file, modified so blocks above board don't trigger collision
+    if (topless_collide(b, m)){
+        return false;
+    }
+
+    // check if it can just go straight up
+    var can_go_up = true
+    for (let block of m.blocks){
+        if (can_go_up){
+            for (let i=0; i<b.blocks.length; i++){
+                try {
+                    if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
+                        can_go_up = false;
+                        break;
+                    }
+                } catch (IndexError) {} // pass, means the block is probably above the board
+            }
+        }
+        else break;
+    }
+    if (can_go_up) return true;
+
+    // check each dir: up, left, right (no down)
+    if (is_reachable(b, m.copy(0, 1), iter+1) || is_reachable(b, m.copy(-1, 0), iter+1), is_reachable(b, m.copy(1, 0), iter+1)){
+        return true;
+    }
+
+    // check each rotation, don't check if O piece
+    else if (m.type != 'O'){
+        for (let rot=1; rot<4; rot++){
+            for (let os=0; os<5; os++){
+                // setting up the offset values
+                let oldperm = (m.perm + rot + 4) % 4
+                let offset = [offsets[m.type][oldperm][os][0] - offsets[m.type][m.perm][os][0], offsets[m.type][oldperm][os][1] - offsets[m.type][m.perm][os][1]]
+                
+                // creating copy of m rotate it and apply proper offset
+                let new_m = m.copy(-offset[0], -offset[1], rot)
+                
+                // create copy of rotated m so we can check if the spin is actually what happens
+                let rotated_new_m = new_m.copy(0, 0)
+                rotated_new_m.srs_rotate(b, -rot + 4) //-rot + 4 undoes rotation
+
+                if (JSON.stringify(rotated_new_m.o) === JSON.stringify(m.o)){ // check if the spin is actually possible
+                    if (is_reachable(b, new_m, iter+1)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        return false;
+    }
+
+}
+
 function get_all_pcs(b, queue, hold, history, height=4) {
     // history is history of placed minos
 
@@ -133,16 +199,71 @@ function get_all_pcs(b, queue, hold, history, height=4) {
             get_all_pcs(new_new_b, queue.slice(1), hold, history.concat(mino), new_new_b.height)
         }
 
-        // hold mino as next
-        for (let mino of get_all_lowest(hold, new_b, new_b.height)){
-            new_new_b = copy_board(new_b, new_b.height)
-            get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
+        if (queue[0] != hold){
+            // hold mino as next
+            for (let mino of get_all_lowest(hold, new_b, new_b.height)){
+                new_new_b = copy_board(new_b, new_b.height)
+                get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
+            }
         }
     }
 }
 
-function is_reachable(b, m){
-    //tood: add reachable check
+function eliminate_duplicate_solutions(b, sols){
+
+    var new_sols = new Array;
+    var seen = new Array;
+
+    for (let s of sols){
+
+        let new_b = Array.from({length: 4}, () => Array(10).fill(0)) // fills with blocks
+         // offset is to cover for if any lines are cleared in the middle of the solution
+        let offset = Array(4).fill(0);
+        let cleared = Array(4).fill(false)
+        for (let m of s){
+
+            for (let i=0; i<m.blocks.length; i++){
+                new_b[m.o.y + m.blocks[i][1] + offset[m.o.y + m.blocks[i][1]]][m.o.x + m.blocks[i][0]] = m.type;
+            }
+
+            // check if any lines have been cleared, if so, modify offset appropriately
+            let new_offset = offset.slice()
+            for (let row=3; row>=0; row--){
+                if (!cleared[row]){
+                    let sum = 0;
+                    for (let block=0; block<10; block++){
+                        if (b.blocks[row][block] != 0 || new_b[row][block] != 0){
+                            sum++;
+                        }
+                    }
+                    if (sum === 10){
+                        // modifying offset
+                        new_offset.splice(row-offset[row], 1)
+                        for (let i=row-offset[row]; i<new_offset.length; i++){
+                            new_offset[i]++;
+                        }
+                        new_offset.push(new_offset[new_offset.length - 1])
+                        cleared[row] = true
+                    }
+                }       
+            }
+            offset = new_offset.slice()
+        }
+
+        let was_seen = false; 
+        for (let arrangement of seen){
+            if (JSON.stringify(new_b) === JSON.stringify(arrangement)) {
+                was_seen = true;
+                break;
+            }
+        }
+        if (!was_seen){
+            seen.push(new_b);
+            new_sols.push(s);
+        }
+    }
+
+    return new_sols;
 }
 
 function copy_board(b, height=4){
@@ -257,14 +378,14 @@ class Mino {
                 this.blocks[j] = [this.blocks[j][1], -this.blocks[j][0]];
             }
         }
-        this.perm = this.perm + n - (Math.floor((this.perm + n)/4) * 4) // dumb math stuff just converts values that are <0 or >3
+        this.perm = (this.perm + n + 4) % 4
     };
 
-    srs_rotate(b, n) {
-        var newperm = this.perm + n - (Math.floor((this.perm + n)/4) * 4)
+    srs_rotate(b, n) { // this is changed from main file, uses topless_collide instead of regular collide
+        var newperm = (this.perm + n + 4) % 4
         for (let i=0; i<5; i++){
             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
-            if (!collide(b, this.copy(offset[0], offset[1], n))){
+            if (!topless_collide(b, this.copy(offset[0], offset[1], n))){
                 this.o.x += offset[0];
                 this.o.y += offset[1];
                 this.rotate(n);
@@ -308,4 +429,14 @@ function collide(b, m){ // this function is copied from the main file
         }
     }
     return false;
+}
+
+function topless_collide(b, m){ // collide that doesn't trigger on top undefined
+    for (let block of m.blocks){
+        if (m.o.y + block[1] >= b.height){}
+        else if (m.o.y + block[1] < 0 || b.blocks[m.o.y + block[1]][m.o.x + block[0]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]]) {
+            return true;
+        }
+    }
+    return false
 }
