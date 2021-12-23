@@ -37,110 +37,6 @@ self.onmessage = function (state){
 
 }
 
-const single_perms = { //to ensure identical minos aren't checked twice (e.g. s-piece flipped 180)
-    "I": [0, 1],
-    "O": [0],
-    "T": [0, 1, 2, 3],
-    "L": [0, 1, 2, 3],
-    "J": [0, 1, 2, 3],
-    "Z": [0, 1],
-    "S": [0, 1],
-};
-
-function is_lowest(b, m){
-    // m is Mino, b is Board
-    for (let block of m.blocks){
-        if (m.o.y + block[1] === 0){
-            return true;
-        } 
-        else if (b.blocks[m.o.y + block[1] - 1][m.o.x + block[0]]){
-            return true;
-        }
-    }
-    return false;
-}
-
-function get_all_lowest(m_type, b, height=4){
-    // m_type is string (char)
-    var result = [];
-
-    for (var perm of single_perms[m_type]){
-        for (var x = 0; x < 10; x++){
-            for (var y = 0; y < height; y++){
-                tempmino = new Mino(x, y, m_type, perm);
-                if (!collide(b, tempmino) && is_lowest(b, tempmino) && is_reachable(b, tempmino, 0)){
-                    result.push(tempmino);
-                }
-            }
-        }
-    }
-    return result; //returns array of Minos
-}
-
-// b is board, m is Mino
-// TODO:
-// fix 
-// G I I I I G
-// G G G   G G
-// G G G   G G
-// G G     G G
-// J should not fit in there, but it does
-function is_reachable(b, m, iter=0){
-    // check if we've already done too much iterations of this
-    if (iter > 4){
-        return false;
-    }
-
-    // check if the mino is already collided with the board
-    // this is collide() from main file, modified so blocks above board don't trigger collision
-    for (let block of m.blocks){
-        if (m.o.y + block[1] >= b.height){}
-        else if (m.o.y + block[1] < 0 || b.blocks[m.o.y + block[1]][m.o.x + block[0]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]]) {
-            return false;
-        }
-    }
-
-    // check if it can just go straight up
-    var can_go_up = true
-    for (let block of m.blocks){
-        if (can_go_up){
-            for (let i=0; i<b.blocks.length; i++){
-                try {
-                    if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
-                        can_go_up = false;
-                        break;
-                    }
-                } catch (IndexError) {} // pass, means the block is probably above the board
-            }
-        }
-        else break;
-    }
-    if (can_go_up) return true;
-
-    // check each dir: up, left, right (no down)
-    if (is_reachable(b, m.copy(0, 1), iter+1) || is_reachable(b, m.copy(-1, 0), iter+1), is_reachable(b, m.copy(1, 0), iter+1)){
-        return true;
-    }
-
-    // check each rotation, don't check if O piece
-    else if (m.type != 'O'){
-        for (let rot=1; rot<4; rot++){
-            for (let os=0; os<5; os++){
-                let oldperm = (m.perm + rot + 4) % 4
-                let offset = [offsets[m.type][oldperm][os][0] - offsets[m.type][m.perm][os][0], offsets[m.type][oldperm][os][1] - offsets[m.type][m.perm][os][1]]
-
-                if (is_reachable(b, m.copy(-offset[0], -offset[1], rot), iter+1)) {
-                    return true;
-                }
-            }
-        }
-    }
-    else {
-        return false;
-    }
-
-}
-
 function is_pcable(b, queue, height=4){// check if board is pc-able given queue
     // check if board height is higher than pc height
     for (var i = height; i<b.blocks.length; i++){        
@@ -171,6 +67,110 @@ function is_pcable(b, queue, height=4){// check if board is pc-able given queue
     }
 
     return true;
+}
+
+/* const single_perms = { //to ensure identical minos aren't checked twice (e.g. s-piece flipped 180)
+    "I": [0, 1],
+    "O": [0],
+    "T": [0, 1, 2, 3],
+    "L": [0, 1, 2, 3],
+    "J": [0, 1, 2, 3],
+    "Z": [0, 1],
+    "S": [0, 1],
+}; */
+
+function is_lowest(b, m){
+    // m is Mino, b is Board
+    for (let block of m.blocks){
+        if (m.o.y + block[1] === 0){
+            return true;
+        } 
+        else if (b.blocks[m.o.y + block[1] - 1][m.o.x + block[0]]){
+            return true;
+        }
+    }
+    return false;
+}
+
+function get_all_lowest(m_type, b, height=4){
+    // m_type is string (char)
+    var result = [];
+
+    //for (var perm of single_perms[m_type]){
+    for (let perm=0; perm<4; perm++){
+        for (var x = 0; x < 10; x++){
+            for (var y = 0; y < height; y++){
+                tempmino = new Mino(x, y, m_type, perm);
+                if (!collide(b, tempmino) && is_lowest(b, tempmino) && is_reachable(b, tempmino, 0)){
+                    result.push(tempmino);
+                }
+            }
+        }
+    }
+    return result; //returns array of Minos
+}
+
+function is_reachable(b, m, iter=0){
+    // check if we've already done too much iterations of this, currently set to maximum 3 but can add more
+    if (iter > 4){
+        return false;
+    }
+
+    // check if the mino is already collided with the board
+    // this is collide() from main file, modified so blocks above board don't trigger collision
+    if (topless_collide(b, m)){
+        return false;
+    }
+
+    // check if it can just go straight up
+    var can_go_up = true
+    for (let block of m.blocks){
+        if (can_go_up){
+            for (let i=0; i<b.blocks.length; i++){
+                try {
+                    if (b.blocks[m.o.y + block[1] + i][m.o.x + block[0]]){
+                        can_go_up = false;
+                        break;
+                    }
+                } catch (IndexError) {} // pass, means the block is probably above the board
+            }
+        }
+        else break;
+    }
+    if (can_go_up) return true;
+
+    // check each dir: up, left, right (no down)
+    if (is_reachable(b, m.copy(0, 1), iter+1) || is_reachable(b, m.copy(-1, 0), iter+1), is_reachable(b, m.copy(1, 0), iter+1)){
+        return true;
+    }
+
+    // check each rotation, don't check if O piece
+    else if (m.type != 'O'){
+        for (let rot=1; rot<4; rot++){
+            for (let os=0; os<5; os++){
+                // setting up the offset values
+                let oldperm = (m.perm + rot + 4) % 4
+                let offset = [offsets[m.type][oldperm][os][0] - offsets[m.type][m.perm][os][0], offsets[m.type][oldperm][os][1] - offsets[m.type][m.perm][os][1]]
+                
+                // creating copy of m rotate it and apply proper offset
+                let new_m = m.copy(-offset[0], -offset[1], rot)
+                
+                // create copy of rotated m so we can check if the spin is actually what happens
+                let rotated_new_m = new_m.copy(0, 0)
+                rotated_new_m.srs_rotate(b, -rot + 4) //-rot + 4 undoes rotation
+
+                if (JSON.stringify(rotated_new_m.o) === JSON.stringify(m.o)){ // check if the spin is actually possible
+                    if (is_reachable(b, new_m, iter+1)) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    else {
+        return false;
+    }
+
 }
 
 function get_all_pcs(b, queue, hold, history, height=4) {
@@ -252,7 +252,6 @@ function eliminate_duplicate_solutions(b, sols){
 
         let was_seen = false; 
         for (let arrangement of seen){
-            //console.log(new_b, arrangement)
             if (JSON.stringify(new_b) === JSON.stringify(arrangement)) {
                 was_seen = true;
                 break;
@@ -382,11 +381,11 @@ class Mino {
         this.perm = (this.perm + n + 4) % 4
     };
 
-    srs_rotate(b, n) {
+    srs_rotate(b, n) { // this is changed from main file, uses topless_collide instead of regular collide
         var newperm = (this.perm + n + 4) % 4
         for (let i=0; i<5; i++){
             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
-            if (!collide(b, this.copy(offset[0], offset[1], n))){
+            if (!topless_collide(b, this.copy(offset[0], offset[1], n))){
                 this.o.x += offset[0];
                 this.o.y += offset[1];
                 this.rotate(n);
@@ -432,4 +431,12 @@ function collide(b, m){ // this function is copied from the main file
     return false;
 }
 
-
+function topless_collide(b, m){ // collide that doesn't trigger on top undefined
+    for (let block of m.blocks){
+        if (m.o.y + block[1] >= b.height){}
+        else if (m.o.y + block[1] < 0 || b.blocks[m.o.y + block[1]][m.o.x + block[0]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]]) {
+            return true;
+        }
+    }
+    return false
+}
