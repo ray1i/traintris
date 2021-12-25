@@ -106,6 +106,7 @@ function get_all_lowest(m_type, b, height=4){
                 }
             }
         }
+        if (m_type === 'O' && perm > 0) break;
     }
     return result; //returns array of Minos
 }
@@ -188,11 +189,11 @@ function get_all_pcs(b, queue, hold, history, height=4) {
         solutions.push(history);
         return;
     }
-    else if (queue.length <= 0) {
+    else if (queue.length <= 0 && hold === null) {
         return;
     }
+
     else {
-        // TODO: account for case where both the curr and hold mino need to be used
         // current mino as next
         for (let mino of get_all_lowest(queue[0], new_b, new_b.height)){
             new_new_b = copy_board(new_b, new_b.height)
