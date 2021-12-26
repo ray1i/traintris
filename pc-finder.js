@@ -19,22 +19,23 @@ self.onmessage = function (state){
 
     new_b = copy_board({width: state.data.b[0].length, blocks: state.data.b})
 
-
     solutions = []; // this will be Array of Array of Minos if there are solutions, otherwise it will be a string where the string is the error message
-    if (is_pcable(new_b, [new_hold].concat(new_queue))){
+    
+    for (let h=1; h<5; h++){
+        
+        console.log('searching for ' + h + '-height pcs...')
 
-        console.log('searching for pcs...')
-
-        get_all_pcs(new_b, new_queue.slice(), new_hold, new Array);
-
-        solutions = eliminate_duplicate_solutions(new_b, solutions);
+        if (is_pcable(new_b, [new_hold].concat(new_queue), h)){
+            get_all_pcs(new_b, new_queue.slice(), new_hold, new Array, h);     
+        }
 
     }
+
+    solutions = eliminate_duplicate_solutions(new_b, solutions);
 
     self.postMessage(solutions)
 
     console.log('finished.')
-
 }
 
 function is_pcable(b, queue, height=4){// check if board is pc-able given queue
@@ -42,7 +43,7 @@ function is_pcable(b, queue, height=4){// check if board is pc-able given queue
     for (var i = height; i<b.blocks.length; i++){        
         for (block of b.blocks[i]){
             if (block) {
-                solutions = 'Board height is higher than ' + height + '!'
+                console.log('Board height is higher than ' + height + '!')
                 return false;
             }
         }
@@ -54,15 +55,15 @@ function is_pcable(b, queue, height=4){// check if board is pc-able given queue
         for (block of b.blocks[i]){
             if (!block) empty_blocks++;
         }
-    } // TODO: check for each height, not jsut 4
+    }
     if (empty_blocks % 4 != 0) {
-        solutions = 'Remaining space is not divisible by 4!'
+        console.log('Remaining space is not divisible by 4!')
         return false;
     }
 
     // check if queue length is long enough to pc
     if (empty_blocks / 4 >  queue.length) {
-        solutions = 'Queue is not long enough!'
+        console.log('Queue is not long enough!')
         return false;
     }
 
