@@ -265,10 +265,25 @@ function update(){
 
 // ---- CONTROLS ---- //
 
+const default_settings = {
+    das: 10, 
+    arr: 1, 
+    sd: 1, 
+    left: 'ArrowLeft',
+    right: 'ArrowRight',
+    ccw: 'z',
+    c: 'ArrowUp',
+    one_eighty: 'a',
+    hold: 'c',
+    soft_drop: 'ArrowDown',
+    hard_drop: ' ',
+    reset: 'F4'
+}
+
 var keys = new Set();
-var das = {'value': 6, 'start': {'left': null, 'right': null}};
-var arr = {'value': 0, 'start': {'left': null, 'right': null}};
-var sd = {'value': 0, 'start': null}; // soft drop delay
+var das = {value: 10, start: {left: null, right: null}};
+var arr = {value: 1, start: {left: null, right: null}};
+var sd = {value: 1, start: null}; // soft drop delay
 var recent_direction = null; // so that if both 
 
 //eventually: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/location
@@ -283,6 +298,33 @@ var controls = {
     hard_drop: ' ',
     reset: 'F4'
 }
+
+// get cookies if they exist, if not, set default controls
+var current_settings;
+if (document.cookie === '') current_settings = JSON.parse(JSON.stringify(default_settings))
+else current_settings = JSON.parse(document.cookie)
+
+function cookie_to_settings(){
+    settings = current_settings
+    das.value = settings.das
+    arr.value = settings.arr
+    sd.value = settings.sd
+    controls.left = settings.left
+    controls.right = settings.right
+    controls.ccw = settings.ccw
+    controls.c = settings.c
+    controls.one_eighty = settings.one_eighty
+    controls.hold = settings.hold
+    controls.soft_drop = settings.soft_drop
+    controls.hard_drop = settings.hard_drop
+    controls.reset = settings.reset
+}
+
+function current_settings_to_cookie(){
+    document.cookie = JSON.stringify(current_settings)
+}
+
+cookie_to_settings();
 
 function handle_controls(){
     for (let k of keys){
@@ -451,6 +493,8 @@ function set_new_key(control){
     ctrls_buttons[control].innerText = '[PRESS NEW KEY]'
     ctrls_buttons[control].addEventListener("keydown", function(e){
         controls[Object.keys(controls)[control]] = e.key;
+        current_settings[Object.keys(controls)[control]] = e.key; // for cookie
+        current_settings_to_cookie();
         ctrls_buttons[control].innerText = e.key.toUpperCase();
         this.removeEventListener("keydown", arguments.callee);
     })
@@ -471,6 +515,10 @@ function save_tuning(){
         das.value = parseInt(tuning_boxes[0].value)
         arr.value = parseInt(tuning_boxes[1].value)
         sd.value = parseInt(tuning_boxes[2].value)
+        current_settings.das = das.value
+        current_settings.arr = arr.value
+        current_settings.sd = sd.value
+        current_settings_to_cookie();
     }
 }
 
