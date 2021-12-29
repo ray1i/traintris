@@ -79,6 +79,7 @@ function collide(b, m){
     return false;
 }
 
+// Board
 var board = {
     height: 40,
     width: 10,
@@ -117,6 +118,7 @@ var board = {
     }
 };
 
+// Mino
 class Mino {
     constructor(ox, oy, type, perm = 0) {
         this.o = {
@@ -190,6 +192,7 @@ class Mino {
     }
 }
 
+// Queue
 var default_queue = {
     base: ['T', 'I', 'O', 'L', 'J', 'S', 'Z'],
     shuffled: function() { //Fisher-Yates shuffle
@@ -232,7 +235,7 @@ var currMino, holdMino;
 function start(){ //and restart
     queue.blocks = default_queue.shuffled();
     currMino = new Mino(4, 20, queue.blocks.shift(), 0);
-    holdMino = null;
+    holdMino = null; // todo: replace with some sort of null Mino
     board.reset();
     
     frame = 0;
@@ -262,6 +265,82 @@ function update(){
     hold_ctx.clearRect(0, 0, hold_canvas.width, hold_canvas.height);
     if (holdMino !== null) holdMino.draw(hold_ctx, 1, 1);
 }
+
+// ---- UNDO/REDO ---- //
+
+const history_size = 50;
+
+// each one is an Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold)
+var undo_history = new Array(); // the end is the most recent
+var redo_history = new Array(); // the end is the most recent
+
+function undo() {
+    traintris_elem.focus();
+    if (undo_history.length === 0){}
+    else {
+        var state = undo_history.pop()
+        if (holdMino === null){
+            redo_history.push({
+                blocks: JSON.parse(JSON.stringify(board.blocks)),
+                curr: currMino.type,
+                hold: null
+            })
+        }
+        else {
+            redo_history.push({
+                blocks: JSON.parse(JSON.stringify(board.blocks)),
+                curr: currMino.type,
+                hold: holdMino.type
+            })
+        }
+
+        board.blocks = state.blocks
+        if (holdMino.type === state.hold) { // i.e. hold mino has not changed
+            queue.blocks.unshift(currMino.type)
+            currMino = new Mino(4, 20, state.curr, 0)
+        }
+        else {
+            queue.blocks.unshift(holdMino.type)
+            holdMino = new Mino(0, 0, state.hold);
+            currMino = new Mino(4, 20, state.curr, 0)
+        }
+    }
+}
+
+function redo() {
+    traintris_elem.focus();
+    if (redo_history.length === 0){}
+    else {
+        var state = redo_history.pop()
+        if (holdMino === null){
+            undo_history.push({
+                blocks: JSON.parse(JSON.stringify(board.blocks)),
+                curr: currMino.type,
+                hold: null
+            })
+        }
+        else {
+            undo_history.push({
+                blocks: JSON.parse(JSON.stringify(board.blocks)),
+                curr: currMino.type,
+                hold: holdMino.type
+            })
+        }
+
+        board.blocks = state.blocks
+        if (holdMino.type = state.hold) { // i.e. hold mino has not changed
+            queue.blocks.unshift(currMino.type)
+            currMino = new Mino(4, 20, state.curr, 0)
+        }
+        else {
+            queue.blocks.unshift(holdMino.type)
+            holdMino = new Mino(0, 0, state.hold);
+            currMino = new Mino(4, 20, state.curr, 0)
+        }
+    }
+}
+
+
 
 // ---- CONTROLS ---- //
 
@@ -402,6 +481,24 @@ function handle_controls(){
                 }
                 break;
             case controls.hard_drop:
+                // clear redo_history
+                redo_history = new Array();
+                // add to undo_history
+                if (holdMino === null){
+                    undo_history.push({
+                        blocks: JSON.parse(JSON.stringify(board.blocks)),
+                        curr: currMino.type,
+                        hold: null
+                    })
+                }
+                else {
+                    undo_history.push({
+                        blocks: JSON.parse(JSON.stringify(board.blocks)),
+                        curr: currMino.type,
+                        hold: holdMino.type
+                    })
+                }
+            
                 board.place_mino(currMino.lowest(board));
                 board.clear();
 

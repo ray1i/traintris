@@ -70,33 +70,45 @@
 
         </div>
 
+        <div class="section" style="display:flex;flex-direction:column">
+        
+            <div id="traintris-game" tabindex="1" autofocus>
 
-        <div id="traintris-game" tabindex="1" autofocus>
-
-            <canvas id="hold" class='traintris-canvas section' width="128" height="128"></canvas>
-
-            <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
-
-            <canvas id="queue" class='traintris-canvas section' width="128" height="640"></canvas>
-
-            <div id="pc-finder" class="section">
-                <h1 class="section-title" hidden>PC FINDER</h1>
-
-                <button class="button" id="pc-start-button" href="#" onclick='start_pc_worker()'>FIND PC</button>
-
-                <canvas id='pc-canvas' width="320" height="640"></canvas>
-
-                <div id="pc-buttons">
-                    <button class="button" onclick=result.index_subtract()>PREV</button>
-                    <button class="button" onclick=result.index_add()>NEXT</button>
-                </div>
-                
-                <p id='pc-result'></p>
-                <p id='pc-progress' hidden></p>
-
-                <script src="traintris.js"></script>
+                <canvas id="hold" class='traintris-canvas' width="128" height="128"></canvas>
+    
+                <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
+    
+                <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+    
             </div>
+
+            <div id='undo-redo'>
+
+                <button class='small-button' onclick='undo()'>UNDO</button>
+                <button class='small-button' onclick='redo()'>REDO</button>
+
+            </div>
+
         </div>
+        
+        <div id="pc-finder" class="section">
+            <h1 class="section-title" hidden>PC FINDER</h1>
+
+            <button class="button" id="pc-start-button" href="#" onclick='start_pc_worker()'>FIND PC</button>
+
+            <canvas id='pc-canvas' width="320" height="640"></canvas>
+
+            <div id="pc-buttons">
+                <button class="button" onclick=result.index_subtract()>PREV</button>
+                <button class="button" onclick=result.index_add()>NEXT</button>
+            </div>
+            
+            <p id='pc-result'></p>
+            <p id='pc-progress' hidden></p>
+
+            <script src="traintris.js"></script>
+        </div>
+
     </div>
 
 </body>
