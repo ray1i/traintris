@@ -340,8 +340,6 @@ function redo() {
     }
 }
 
-
-
 // ---- CONTROLS ---- //
 
 const default_settings = {
@@ -518,13 +516,19 @@ function handle_controls(){
 // this is for keyboard controls for the game.
 traintris_elem = document.getElementById('traintris-game')
 traintris_elem.addEventListener('keydown', function(e){
-    if (!e.repeat) keys.add(e.key);
-    if (e.key == controls.left){
-        recent_direction = 'left'
+    if (e.ctrlKey){
+        if (e.key === 'z') undo();
+        else if (e.key === 'y') redo();
     }
-    else if (e.key == controls.right){
-        recent_direction = 'right'
-    }
+    else {
+        if (!e.repeat) keys.add(e.key);
+        if (e.key == controls.left){
+            recent_direction = 'left'
+        }
+        else if (e.key == controls.right){
+            recent_direction = 'right'
+        }
+    } 
 })
 traintris_elem.addEventListener('keyup', function(e){
     keys.delete(e.key);
