@@ -222,6 +222,24 @@ var queue = {
     }
 };
 
+// Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold)
+function get_current_state(){
+    if (holdMino === null){
+        return({
+            blocks: JSON.parse(JSON.stringify(board.blocks)),
+            curr: currMino.type,
+            hold: null
+        })
+    }
+    else {
+        return ({
+            blocks: JSON.parse(JSON.stringify(board.blocks)),
+            curr: currMino.type,
+            hold: holdMino.type
+        })
+    }
+}
+
 // ---- GAMEPLAY ---- //
 
 const fps = 60;
@@ -278,24 +296,12 @@ function undo() {
     traintris_elem.focus();
     if (undo_history.length === 0){}
     else {
+        redo_history.push(get_current_state())
+
         var state = undo_history.pop()
-        if (holdMino === null){
-            redo_history.push({
-                blocks: JSON.parse(JSON.stringify(board.blocks)),
-                curr: currMino.type,
-                hold: null
-            })
-        }
-        else {
-            redo_history.push({
-                blocks: JSON.parse(JSON.stringify(board.blocks)),
-                curr: currMino.type,
-                hold: holdMino.type
-            })
-        }
 
         board.blocks = state.blocks
-        if (holdMino.type === state.hold) { // i.e. hold mino has not changed
+        if (holdMino === null || holdMino.type === state.hold) { // i.e. hold mino has not changed
             queue.blocks.unshift(currMino.type)
             currMino = new Mino(4, 20, state.curr, 0)
         }
@@ -311,31 +317,15 @@ function redo() {
     traintris_elem.focus();
     if (redo_history.length === 0){}
     else {
+        undo_history.push(get_current_state())
+
         var state = redo_history.pop()
-        if (holdMino === null){
-            undo_history.push({
-                blocks: JSON.parse(JSON.stringify(board.blocks)),
-                curr: currMino.type,
-                hold: null
-            })
-        }
-        else {
-            undo_history.push({
-                blocks: JSON.parse(JSON.stringify(board.blocks)),
-                curr: currMino.type,
-                hold: holdMino.type
-            })
-        }
 
         board.blocks = state.blocks
-        if (holdMino.type = state.hold) { // i.e. hold mino has not changed
-            queue.blocks.unshift(currMino.type)
-            currMino = new Mino(4, 20, state.curr, 0)
-        }
-        else {
-            queue.blocks.unshift(holdMino.type)
+        queue.blocks.shift()
+        currMino = new Mino(4, 20, state.curr, 0)
+        if (state.hold !== null) { // i.e. hold mino has not changed
             holdMino = new Mino(0, 0, state.hold);
-            currMino = new Mino(4, 20, state.curr, 0)
         }
     }
 }
@@ -482,20 +472,8 @@ function handle_controls(){
                 // clear redo_history
                 redo_history = new Array();
                 // add to undo_history
-                if (holdMino === null){
-                    undo_history.push({
-                        blocks: JSON.parse(JSON.stringify(board.blocks)),
-                        curr: currMino.type,
-                        hold: null
-                    })
-                }
-                else {
-                    undo_history.push({
-                        blocks: JSON.parse(JSON.stringify(board.blocks)),
-                        curr: currMino.type,
-                        hold: holdMino.type
-                    })
-                }
+                undo_history.push(get_current_state())
+                if (undo_history.length > history_size) undo_history.slice(1) // don't store more than size
             
                 board.place_mino(currMino.lowest(board));
                 board.clear();
