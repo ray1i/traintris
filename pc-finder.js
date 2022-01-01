@@ -1,6 +1,7 @@
 
 
 var solutions = [];
+var seen_boards = [];
 
 // when it gets input from the main file, run everything else.
 // state.data has b (2d Array of Chars), curr (Char), hold (Char), queue (Array of Chars)
@@ -17,10 +18,11 @@ self.onmessage = function (state){
         new_hold = state.data.curr
     }
 
-    new_b = copy_board({width: state.data.b[0].length, blocks: state.data.b})
+    var new_b = copy_board({width: state.data.b[0].length, blocks: state.data.b})
 
     solutions = []; // this will be Array of Array of Minos if there are solutions, otherwise it will be a string where the string is the error message
-    
+    seen_boards = []; // Array of stringified 2d Arrays of Chars (board) with 1 Char prepended (curr)
+
     for (let h=1; h<5; h++){
         
         console.log('searching for ' + h + '-height pcs...')
@@ -180,7 +182,7 @@ function get_all_pcs(b, queue, hold, history, height=4) {
 
     var new_b = copy_board(b, height);
 
-    if (history != 0){
+    if (history.length > 0){
         new_b.place_mino(history[history.length - 1]);
         new_b.clear();
     }
@@ -193,20 +195,22 @@ function get_all_pcs(b, queue, hold, history, height=4) {
     else if (queue.length <= 0 && hold === null) {
         return;
     }
-
+    else if (seen_boards.includes(JSON.stringify([queue[0], ...new_b.blocks]))){
+        return;
+    }
     else {
+        seen_boards.push(JSON.stringify([queue[0], ...new_b.blocks]))
+
         // current mino as next
         for (let mino of get_all_lowest(queue[0], new_b, new_b.height)){
             new_new_b = copy_board(new_b, new_b.height)
             get_all_pcs(new_new_b, queue.slice(1), hold, history.concat(mino), new_new_b.height)
         }
 
-        if (queue[0] != hold){
-            // hold mino as next
-            for (let mino of get_all_lowest(hold, new_b, new_b.height)){
-                new_new_b = copy_board(new_b, new_b.height)
-                get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
-            }
+        // hold mino as next
+        for (let mino of get_all_lowest(hold, new_b, new_b.height)){
+            new_new_b = copy_board(new_b, new_b.height)
+            get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
         }
     }
 }
