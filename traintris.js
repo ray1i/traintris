@@ -305,6 +305,12 @@ function undo() {
             queue.blocks.unshift(currMino.type)
             currMino = new Mino(4, 20, state.curr, 0)
         }
+        else if (state.hold === null){
+            queue.blocks.unshift(currMino.type)
+            queue.blocks.unshift(holdMino.type)
+            holdMino = null
+            currMino = new Mino(4, 20, state.curr, 0)
+        }
         else {
             queue.blocks.unshift(holdMino.type)
             holdMino = new Mino(0, 0, state.hold);
