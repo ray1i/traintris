@@ -74,11 +74,17 @@
         
             <div id="traintris-game" tabindex="1" autofocus>
 
-                <canvas id="hold" class='traintris-canvas' width="128" height="128"></canvas>
-    
-                <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
-    
-                <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+                <div id="hold-container" onclick="edit_hold()">
+                    <canvas id="hold" class='traintris-canvas' width="128" height="128"></canvas>
+                </div>
+                
+                <div id="board-container">
+                    <canvas id="board" class='traintris-canvas' width="320" height="640"></canvas>
+                </div>
+
+                <div id="queue-container" onclick="edit_queue()">
+                    <canvas id="queue" class='traintris-canvas' width="128" height="640"></canvas>
+                </div>
     
             </div>
 

@@ -116,17 +116,23 @@ p {
     justify-content: center;
     align-items: flex-start;
 }
+#traintris-game:focus {
+    outline: none;
+}
 
 .traintris-canvas {
     margin: 10px;
 }
 
-.queue {
+#queue-container, #hold-container {
     cursor: pointer;
+    padding: 2px;
+    border-style: solid;
+    border-width: 5px;
+    border-color: rgba(165, 165, 165, 0);
 }
-
-.hold {
-    cursor: pointer;
+#queue-container:hover, #hold-container:hover {
+    border-color: rgb(165, 165, 165);
 }
 
 #undo-redo {

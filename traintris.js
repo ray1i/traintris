@@ -228,14 +228,16 @@ function get_current_state(){
         return({
             blocks: JSON.parse(JSON.stringify(board.blocks)),
             curr: currMino.type,
-            hold: null
+            hold: null,
+            queue: null
         })
     }
     else {
         return ({
             blocks: JSON.parse(JSON.stringify(board.blocks)),
             curr: currMino.type,
-            hold: holdMino.type
+            hold: holdMino.type,
+            queue: null
         })
     }
 }
@@ -288,7 +290,7 @@ function update(){
 
 const history_size = 50;
 
-// each one is an Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold)
+// each one is an Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold), and one Array of Chars/null (queue)
 var undo_history = new Array(); // the end is the most recent
 var redo_history = new Array(); // the end is the most recent
 
@@ -296,25 +298,46 @@ function undo() {
     traintris_elem.focus();
     if (undo_history.length === 0){}
     else {
-        redo_history.push(get_current_state())
-
         var state = undo_history.pop()
 
-        board.blocks = state.blocks
-        if (holdMino === null || holdMino.type === state.hold) { // i.e. hold mino has not changed
-            queue.blocks.unshift(currMino.type)
-            currMino = new Mino(4, 20, state.curr, 0)
+        if (state.queue === null) {
+
+            redo_history.push(get_current_state())
+
+            board.blocks = state.blocks
+            if (holdMino === null || holdMino.type === state.hold) { // i.e. hold mino has not changed
+                queue.blocks.unshift(currMino.type)
+                currMino = new Mino(4, 20, state.curr, 0)
+            }
+            else if (state.hold === null){
+                queue.blocks.unshift(currMino.type)
+                queue.blocks.unshift(holdMino.type)
+                holdMino = null
+                currMino = new Mino(4, 20, state.curr, 0)
+            }
+            else {
+                queue.blocks.unshift(holdMino.type)
+                holdMino = new Mino(0, 0, state.hold);
+                currMino = new Mino(4, 20, state.curr, 0)
+            }
         }
-        else if (state.hold === null){
-            queue.blocks.unshift(currMino.type)
-            queue.blocks.unshift(holdMino.type)
-            holdMino = null
+        else { // undoing queue/hold input
+
+            let temp = get_current_state()
+            temp.queue = [...queue.blocks]
+
+            redo_history.push(temp)
+
+            queue.blocks = [...state.queue]
             currMino = new Mino(4, 20, state.curr, 0)
-        }
-        else {
-            queue.blocks.unshift(holdMino.type)
-            holdMino = new Mino(0, 0, state.hold);
-            currMino = new Mino(4, 20, state.curr, 0)
+            if (holdMino === null) {
+                holdMino = null
+            }
+            else {
+                queue.blocks.unshift(holdMino.type)
+                holdMino = new Mino(0, 0, state.hold);
+            }
+
         }
     }
 }
@@ -323,16 +346,40 @@ function redo() {
     traintris_elem.focus();
     if (redo_history.length === 0){}
     else {
-        undo_history.push(get_current_state())
-
         var state = redo_history.pop()
 
-        board.blocks = state.blocks
-        queue.blocks.shift()
-        currMino = new Mino(4, 20, state.curr, 0)
-        if (state.hold !== null) { // i.e. hold mino has not changed
-            holdMino = new Mino(0, 0, state.hold);
+        if (state.queue === null) {
+
+            undo_history.push(get_current_state())
+
+            board.blocks = state.blocks
+
+            queue.blocks.shift()
+            currMino = new Mino(4, 20, state.curr, 0)
+            if (state.hold !== null) { // i.e. hold mino has not changed
+                holdMino = new Mino(0, 0, state.hold);
+            }
         }
+        else { // undoing queue/hold input
+
+            let temp = get_current_state()
+            temp.queue = [...queue.blocks]
+
+            undo_history.push(temp)
+
+            queue.blocks = [...state.queue]
+            currMino = new Mino(4, 20, state.curr, 0)
+            if (holdMino === null) {
+                holdMino = null
+            }
+            else {
+                queue.blocks.unshift(holdMino.type)
+                holdMino = new Mino(0, 0, state.hold);
+            }
+
+        }
+
+
     }
 }
 
@@ -534,6 +581,61 @@ traintris_elem.addEventListener('keyup', function(e){
         sd.start = null;
     }
 })
+
+// this is for editing the queue and hold
+function edit_queue() {
+    new_queue_blocks = new Array()
+
+    let new_queue = prompt("Enter the new queue", "TIOSLT")
+
+    if (new_queue === null) return;
+
+    new_queue = new_queue.toUpperCase();
+
+    for (let c of new_queue){
+        if ("IOTSZLJ".includes(c)) new_queue_blocks.push(c)
+    }
+
+    if (new_queue_blocks.length <= 0) {
+        alert("Put at least 1 valid piece")
+        return;
+    }
+    else {
+        // add current state to undo history
+        let temp_state = get_current_state()
+        temp_state.queue = [...queue.blocks]
+        undo_history.push(temp_state)
+
+        if (undo_history > history_size) undo_history.shift()
+
+        //currMino = new Mino(4, 20, new_queue_blocks.shift())
+        queue.blocks = new_queue_blocks;
+
+        if (queue.blocks.length < queue.min_length) queue.extend();
+    }
+
+}
+
+function edit_hold() {
+    let new_hold = prompt("Enter the new hold piece", "Z")
+    
+    if (new_hold === null) return;
+
+    for (let c of new_hold){
+        if (new_hold != '' && "IOTSZLJ".includes(c.toUpperCase())) {
+            let temp_state = get_current_state()
+            temp_state.queue = queue.blocks
+            undo_history.push(temp_state)
+            if (undo_history > history_size) undo_history.shift()
+
+            holdMino = new Mino(0, 0, c.toUpperCase())
+
+            return;
+        }
+    }
+
+    holdMino = null
+}
 
 // this is for drawing on the board with mouse.
 var board_elem = document.getElementById('board');
