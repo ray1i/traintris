@@ -1,3 +1,4 @@
+import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -63,7 +64,7 @@ function App() {
 
         <div className="section">
         
-            <div id="traintris-game" tabindex="1" autofocus>
+            <div id="traintris-game" tabIndex={1}>
 
                 <div id="hold-container">
                     <canvas id="hold" className='traintris-canvas' width="128" height="128"></canvas>
@@ -81,8 +82,8 @@ function App() {
 
             <div id='undo-redo'>
 
-                <button className='small-button' onclick='undo()' title='Ctrl+Z'>UNDO</button>
-                <button className='small-button' onclick='redo()' title='Ctrl+Y'>REDO</button>
+                <button className='small-button' title='Ctrl+Z'>UNDO</button>
+                <button className='small-button' title='Ctrl+Y'>REDO</button>
 
             </div>
 
@@ -91,7 +92,7 @@ function App() {
         <div id="pc-finder" className="section">
             <h1 className="section-title" hidden>PC FINDER</h1>
 
-            <button className="button" id="pc-start-button" href="#">FIND PC</button>
+            <button className="button" id="pc-start-button">FIND PC</button>
 
             <canvas id='pc-canvas' width="320" height="640"></canvas>
 
