@@ -1,8 +1,5 @@
 import { useRef, useEffect, useState } from "react"
 
-import { minoIndexes, blocksize } from "../../data/minodata"
-
-import board from '../../img/board.png'
 import blocksheet from '../../img/blocksheet.png'
 
 import { minoType, Mino } from "./types"

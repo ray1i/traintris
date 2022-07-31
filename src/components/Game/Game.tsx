@@ -6,10 +6,13 @@ import Queue from './Queue';
 
 import { srsOffsets } from '../../data/minodata';
 import { minoType, Mino } from './types';
-import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue } from './util';
+import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from './util';
 
 const width = 10;
 const height = 40;
+
+const spawnX = 4;
+const spawnY = 19;
 
 function Game() {
 
@@ -26,12 +29,12 @@ function Game() {
         }
     }
 
-    const setMultipleBlocks = (blocklist: {x: number, y: number}[], type: string) => {
+    const setMultipleBlocks = (blocklist: [number, number][], type: string) => {
         let tempBlocks = JSON.parse(JSON.stringify(blocks));
         
         for (let block of blocklist) {
-            if (block.x < width && block.y < height) {
-                tempBlocks[block.y][block.x] = type;
+            if (block[0] < width && block[1] < height) {
+                tempBlocks[block[1]][block[0]] = type;
             }
         }
 
@@ -43,7 +46,7 @@ function Game() {
     const [currMino, setCurrMino] = useState<Mino>();
 
     useEffect(() => {
-        const newMino = getNewMino('S', 4, 5);
+        const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
         setCurrMino(newMino);
     }, [])
     
@@ -74,20 +77,25 @@ function Game() {
         }
     }
 
+    const placeCurrMino = () => {
+        if (currMino) {
+            const lowestCurrMino = (lowest(blocks, currMino));
+            setMultipleBlocks(lowestCurrMino.blocks, lowestCurrMino.type);
+
+            setCurrMino(getNewMino(popFromQueue(), spawnX, spawnY));
+        }
+    }
+
     // Hold Mino:
     const [holdMino, setHoldMino] = useState<minoType>();
 
     const swapHoldMino = () => {
         if (!holdMino) {
             setHoldMino(currMino?.type);
-            setCurrMino(getNewMino(queueMinos[0], 4, 5));
-            
-            let newQueue = [...queueMinos];
-            newQueue.splice(0, 1);
-            setQueueMinos(newQueue);
+            setCurrMino(getNewMino(popFromQueue(), spawnX, spawnY));
         } else {
             const tempType = currMino?.type as minoType;
-            setCurrMino(getNewMino(holdMino, 4, 5));
+            setCurrMino(getNewMino(holdMino, spawnX, spawnY));
             setHoldMino(tempType);
         }
     }
@@ -97,6 +105,18 @@ function Game() {
 
     const minQueueLength = 5;
 
+    const popFromQueue = (): minoType => {
+        let newQueue = [...queueMinos];
+        const removedMino = newQueue.splice(0, 1)[0];
+
+        // refill queue if it is empty
+        while (newQueue.length < minQueueLength) {
+            newQueue = [...newQueue, ...getShuffledQueue()];
+        }
+
+        setQueueMinos(newQueue);
+        return removedMino;
+    }
     // useEffect(() => {
     //     while (queueMinos.length < minQueueLength) {
     //         setQueueMinos([...queueMinos, ...getShuffledQueue()])
@@ -138,6 +158,12 @@ function Game() {
                 break;
             case default_settings.hold:
                 swapHoldMino();
+                break;
+            case default_settings.soft_drop:
+                moveCurrMino(0, -1);
+                break;
+            case default_settings.hard_drop:
+                placeCurrMino();
                 break;
         }
     }
