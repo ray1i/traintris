@@ -1,148 +1,10 @@
 export {}
 
-// // ---- CANVAS ---- //
-
-// var canvas = document.getElementById("board")
-// var ctx = canvas.getContext("2d"); 
-
 // var hold_canvas = document.getElementById("hold");
 // var hold_ctx = hold_canvas.getContext("2d");
 
 // var queue_canvas = document.getElementById("queue");
 // var queue_ctx = queue_canvas.getContext("2d");
-
-// const blocksize = 32;
-// ctx.scale(blocksize, blocksize);
-// hold_ctx.scale(blocksize, blocksize);
-// queue_ctx.scale(blocksize, blocksize);
-
-// // Sprites
-// const blocksheet = new Image();
-// blocksheet.src = "img/blocksheet.png";
-// const boardsprite = new Image();
-// boardsprite.src = 'img/board.png'
-
-// function collide(b, m){
-//     for (let block of m.blocks){
-//         if (b.blocks[m.o.y + block[1]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]] === undefined || b.blocks[m.o.y + block[1]][m.o.x + block[0]]) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
-// // Board
-// var board = {
-//     height: 40,
-//     width: 10,
-//     blocks: Array.from({length: 40}, () => Array(10).fill(0)),
-
-//     place_mino: function(m){
-//         for (let block of m.blocks){
-//             this.blocks[m.o.y + block[1]][m.o.x + block[0]] = m.type;
-//         }
-//     },
-
-//     clear: function(){
-//         for (var i=0; i<this.blocks.length; i++){
-//             var sum = 0;
-//             for (let block of this.blocks[i]) {
-//                 if (block) sum++;
-//             }
-//             if (sum === this.width) {
-//                 this.blocks.splice(i, 1);
-//                 this.blocks.push(Array(10).fill(0));
-//                 i--;
-//             }
-//         }
-//     },
-
-//     reset: function() {
-//         this.blocks = Array.from({length: 40}, () => Array(10).fill(0));
-//     },
-
-//     draw: function(context=ctx){
-//         for (let i=0; i<this.blocks.length; i++){
-//             for (let j=0; j<this.blocks[i].length; j++){
-//                 context.drawImage(blocksheet, blocksize*minoindexes[this.blocks[i][j]], 0, blocksize, blocksize, j, 19 - i, 1, 1);
-//             }
-//         }
-//     }
-// };
-
-// // Mino
-// class Mino {
-//     constructor(ox, oy, type, perm = 0) {
-//         this.o = {
-//             x: ox,
-//             y: oy
-//         };
-//         this.type = type;
-//         //this.perm = perm - (Math.floor(perm/4) * 4) 
-//         this.perm = 0;
-
-//         this.blocks = Array.from(types[this.type]);
-//         this.rotate(perm - (Math.floor(perm/4) * 4));
-//     };
-    
-//     move(b, x, y) { // moves mino x right and y down, returns true if successful, false if collision
-//         if (!collide(b, this.copy(x, y))) {
-//             this.o.x += x;
-//             this.o.y += y;
-//             return true  
-//         }
-//         return false
-//     };
-
-//     rotate(n) {
-//         for (let i=0; i<n; i++){
-//             for (let j=0; j<this.blocks.length; j++){
-//                 this.blocks[j] = [this.blocks[j][1], -this.blocks[j][0]];
-//             }
-//         }
-//         this.perm = (this.perm + n + 4) % 4
-//     };
-
-//     srs_rotate(b, n) {
-//         var newperm = (this.perm + n + 4) % 4
-//         for (let i=0; i<5; i++){
-//             let offset = [offsets[this.type][this.perm][i][0] - offsets[this.type][newperm][i][0], offsets[this.type][this.perm][i][1] - offsets[this.type][newperm][i][1]]
-//             if (!collide(b, this.copy(offset[0], offset[1], n))){
-//                 this.o.x += offset[0];
-//                 this.o.y += offset[1];
-//                 this.rotate(n);
-//                 break;
-//             }
-//         }
-//     }
-
-//     lowest(b) {
-//         let i = -1;
-//         while (!collide(b, this.copy(0, i))){
-//             i--;
-//         }
-//         return this.copy(0, i + 1);
-//     }
-
-//     draw(context=ctx, x=0, y=0) { //x and y are the origin
-//         if (y === 0) {
-//             for (let i=0; i<this.blocks.length; i++){
-//                 context.drawImage(blocksheet, blocksize*minoindexes[this.type], 0, blocksize, blocksize, 
-//                                   this.o.x + this.blocks[i][0] + x, 19 - (this.o.y + this.blocks[i][1]), 1, 1);
-//             }
-//         } else {
-//             for (let i=0; i<this.blocks.length; i++){
-//                 context.drawImage(blocksheet, blocksize*minoindexes[this.type], 0, blocksize, blocksize, 
-//                                   x + this.blocks[i][0], y - this.blocks[i][1], 1, 1);
-//             }
-//         }
-        
-//     };
-
-//     copy(movex, movey, rotation=0) {
-//         return new Mino(this.o.x + movex, this.o.y + movey, this.type, this.perm + rotation);
-//     }
-// }
 
 // // Queue
 // var default_queue = {
@@ -193,14 +55,6 @@ export {}
 //         })
 //     }
 // }
-
-// // ---- GAMEPLAY ---- //
-
-// const fps = 60;
-// var frame;
-
-// window.onload = start();
-// setInterval(update, 1000/fps);
 
 // var currMino, holdMino;
 

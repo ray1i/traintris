@@ -1,5 +1,5 @@
 
-const types = {
+const minoTypes = {
     "I": [[-1, 0], [ 0, 0], [ 1, 0], [ 2, 0]],
 
     "O": [         [ 0, 1], [ 1, 1], 
@@ -23,7 +23,7 @@ const types = {
 
 
 // SRS
-const offsets = {
+const srsOffsets = {
     I: [
         [[ 0, 0], [-1, 0], [+2, 0], [-1, 0], [+2, 0]],
         [[-1, 0], [ 0, 0], [ 0, 0], [ 0,+1], [ 0,-2]],
@@ -90,4 +90,4 @@ const minoIndexes = {
     'G': 7
 };
 
-export { types, offsets, minoIndexes };
+export { minoTypes, srsOffsets, minoIndexes };
