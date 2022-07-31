@@ -47,7 +47,6 @@ const Board = (props: BoardProps) => {
                 if (props.currMino) {
                     
                     // first draw the ghost piece
-                    
                     ctx.globalAlpha = 0.5;
                     const ghostMino = lowest(props.blocks, props.currMino);
                     drawMino(ctx, ghostMino);
@@ -92,15 +91,19 @@ const Board = (props: BoardProps) => {
     }
 
     return (
-        <canvas
-            ref={canvasRef}
-            width={320}
-            height={640}
-            onMouseDown={handleMouseEvent}
-            onMouseUp={handleMouseEvent}
-            onMouseMove={handleMouseEvent}
-            onMouseLeave={handleMouseEvent}
-        />
+        <div id="board-container">
+            <canvas
+                id="board"
+                className="traintris-canvas"
+                ref={canvasRef}
+                width={320}
+                height={640}
+                onMouseDown={handleMouseEvent}
+                onMouseUp={handleMouseEvent}
+                onMouseMove={handleMouseEvent}
+                onMouseLeave={handleMouseEvent}
+            />
+        </div>
     )
 }
 

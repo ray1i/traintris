@@ -7,6 +7,7 @@ import Queue from './Queue';
 import { srsOffsets } from '../../data/minodata';
 import { minoType, Mino } from './types';
 import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from './util';
+import './Game.css';
 
 const width = 10;
 const height = 40;

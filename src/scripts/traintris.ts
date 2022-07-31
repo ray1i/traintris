@@ -1,24 +1,4 @@
 export {}
-// // Queue
-// var default_queue = {
-//     base: ['T', 'I', 'O', 'L', 'J', 'S', 'Z'],
-//     shuffled: function() { //Fisher-Yates shuffle
-//         var new_queue = [...this.base];
-//         var remaining = new_queue.length;
-//         var i;
-//         while (remaining){
-//             i = Math.floor(Math.random() * remaining--);
-//             [new_queue[remaining], new_queue[i]] = [new_queue[i], new_queue[remaining]];
-//         }   
-//         return new_queue;
-//     }
-// };
-// var queue = {
-//     min_length: 5,
-//     blocks: [], // array of chars
-//     extend: function() {
-//         this.blocks = this.blocks.concat(default_queue.shuffled());
-//     },
 
 // // Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold)
 // function get_current_state(){
@@ -47,31 +27,6 @@ export {}
 //     board.reset();
     
 //     frame = 0;
-// }
-
-// function update(){
-//     frame++;
-    
-//     handle_controls();
-
-//     // --- DRAW --- //
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     ctx.drawImage(boardsprite, 0, 0, 10, 20);
-//     // curr
-//     currMino.draw();
-//     // ghost
-//     ctx.globalAlpha = 0.5;
-//     currMino.lowest(board).draw();
-//     ctx.globalAlpha = 1;
-//     // board
-//     board.draw();
-
-//     // queue
-//     queue.draw();
-
-//     // hold
-//     hold_ctx.clearRect(0, 0, hold_canvas.width, hold_canvas.height);
-//     if (holdMino !== null) holdMino.draw(hold_ctx, 1, 1);
 // }
 
 // // ---- UNDO/REDO ---- //

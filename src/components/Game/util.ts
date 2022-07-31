@@ -96,3 +96,24 @@ export const getShuffledQueue = (): minoType[] => {
 
     return base;
 }
+
+// used for drawing in hold and queue:
+export const getMinoWidth = (m: Mino): number => {
+    const seen: number[] = [];
+    m.blocks.forEach(block => {
+        if (!seen.includes(block[0])) {
+            seen.push(block[0]);
+        }
+    })
+    return seen.length;
+}
+
+export const getMinoHeight = (m: Mino): number => {
+    const seen: number[] = [];
+    m.blocks.forEach(block => {
+        if (!seen.includes(block[1])) {
+            seen.push(block[1]);
+        }
+    })
+    return seen.length;
+}
