@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 
-import { minoIndexes } from "../../data/minodata"
+import { minoIndexes, blocksize } from "../../data/minodata"
 
 import board from '../../img/board.png'
 import blocksheet from '../../img/blocksheet.png'
@@ -12,8 +12,6 @@ const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
 const boardSprite = new Image();
 boardSprite.src = board;
-
-const blocksize = 32
 
 const Board = (props: BoardProps) => {
 

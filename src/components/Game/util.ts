@@ -1,13 +1,13 @@
-import { minoTypes, minoIndexes } from "../../data/minodata";
+import { minoTypes, minoIndexes, blocksize } from "../../data/minodata";
 
-import { Mino } from "./types";
+import { Mino, minoType } from "./types";
 
 import blocksheet from '../../img/blocksheet.png'
 
 export const collide = (b: string[][], m: Mino): boolean => {
 
     for (let block of m.blocks) {
-        if (b?.[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
+        if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
             return true;
         }
     }
@@ -37,16 +37,17 @@ export const getMovedMino = (m: Mino, x: number, y: number) : Mino => {
 }
 
 export const getRotatedMino = (m: Mino, n: number) : Mino => {
+    const numRotations = ((n % 4) + 4) % 4
     let newBlocks = m.blocks;
 
-    for (let i = 0; i < n; i++){
-        newBlocks = newBlocks.map((block => [block[1], -block[0]] as [number, number]))
+    for (let i = 0; i < numRotations; i++){
+        newBlocks = newBlocks.map((block => [(block[1] - m.oy) + m.ox, -(block[0] - m.ox) + m.oy] as [number, number]))
     }
 
     return {
         ...m,
         blocks: newBlocks,
-        perm: (m.perm + n) % 4
+        perm: numRotations
     }
 }
 
@@ -64,8 +65,9 @@ export const lowest = (b: string[][], m: Mino): Mino => {
 
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
-const blocksize = 32;
 export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
+    const heightOffset = ctx.canvas.height / blocksize - 1; 
+
     for (let block of m.blocks) {
         ctx.drawImage(
             blocksheetSprite,
@@ -74,9 +76,23 @@ export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
             blocksize,
             blocksize, 
             block[0] * blocksize,
-            (19 - block[1]) * blocksize,
+            (heightOffset - block[1]) * blocksize,
             blocksize,
             blocksize
         );
     }
+}
+
+export const getShuffledQueue = (): minoType[] => {
+    //Fisher-Yates shuffle
+    let base = ['T', 'I', 'O', 'L', 'J', 'S', 'Z'] as minoType[];
+    let remaining = base.length;
+    
+    let i;
+    while (remaining){
+        i = Math.floor(Math.random() * remaining--);
+        [base[remaining], base[i]] = [base[i], base[remaining]];
+    }
+
+    return base;
 }

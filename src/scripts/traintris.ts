@@ -1,11 +1,4 @@
 export {}
-
-// var hold_canvas = document.getElementById("hold");
-// var hold_ctx = hold_canvas.getContext("2d");
-
-// var queue_canvas = document.getElementById("queue");
-// var queue_ctx = queue_canvas.getContext("2d");
-
 // // Queue
 // var default_queue = {
 //     base: ['T', 'I', 'O', 'L', 'J', 'S', 'Z'],
@@ -26,15 +19,6 @@ export {}
 //     extend: function() {
 //         this.blocks = this.blocks.concat(default_queue.shuffled());
 //     },
-    
-//     draw: function() {
-//         queue_ctx.clearRect(0, 0, queue_canvas.width, queue_canvas.height);
-//         for (var i=0; i<this.blocks.length; i++){
-//             tempMino = new Mino(0, 0, this.blocks[i]);
-//             tempMino.draw(queue_ctx, 1, i*4 + 1);
-//         }
-//     }
-// };
 
 // // Array of Objects that each contain 1 2d Array (blocks) and 2 Chars (curr, hold)
 // function get_current_state(){
@@ -55,8 +39,6 @@ export {}
 //         })
 //     }
 // }
-
-// var currMino, holdMino;
 
 // function start(){ //and restart
 //     queue.blocks = default_queue.shuffled();

@@ -1,5 +1,4 @@
-
-const minoTypes = {
+export const minoTypes = {
     "I": [[-1, 0], [ 0, 0], [ 1, 0], [ 2, 0]],
 
     "O": [         [ 0, 1], [ 1, 1], 
@@ -23,7 +22,7 @@ const minoTypes = {
 
 
 // SRS
-const srsOffsets = {
+export const srsOffsets = {
     I: [
         [[ 0, 0], [-1, 0], [+2, 0], [-1, 0], [+2, 0]],
         [[-1, 0], [ 0, 0], [ 0, 0], [ 0,+1], [ 0,-2]],
@@ -79,7 +78,7 @@ const srsOffsets = {
 //     'S',
 //     'G'
 // };
-const minoIndexes = {
+export const minoIndexes = {
     'I': 0,
     'O': 1,
     'T': 2,
@@ -90,4 +89,4 @@ const minoIndexes = {
     'G': 7
 };
 
-export { minoTypes, srsOffsets, minoIndexes };
+export const blocksize = 32;

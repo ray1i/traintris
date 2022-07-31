@@ -1,7 +1,9 @@
 
+export type minoType = 'I' | 'O' | 'T' | 'L' | 'J' | 'Z' | 'S';
+
 export interface Mino {
     blocks: [number, number][],
-    type: string;
+    type: minoType;
     perm: number;
     ox: number,
     oy: number,
