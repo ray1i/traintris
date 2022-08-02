@@ -1,8 +1,8 @@
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect } from "react"
 
 import blocksheet from '../../img/blocksheet.png'
 
-import { minoType, Mino } from "./types"
+import { minoType } from "./types"
 import { getNewMino, drawMino, getMinoWidth, getMinoHeight } from "./util"
 
 const blocksheetSprite = new Image();

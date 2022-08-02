@@ -9,8 +9,12 @@ export interface Mino {
     oy: number,
 }
 
+export type blockType = minoType | 'G' | ''
+
+export type Blocks = blockType[][]
+
 export interface BoardProps {
     blocks: string[][],
     currMino?: Mino,
-    setBlock?: (x: number, y: number, type: string) => void,
+    setBlock?: (x: number, y: number, type: blockType) => void,
 }

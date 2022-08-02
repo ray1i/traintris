@@ -5,7 +5,7 @@ import Hold from './Hold';
 import Queue from './Queue';
 
 import { srsOffsets } from '../../data/minodata';
-import { minoType, Mino } from './types';
+import { minoType, Mino, Blocks, blockType } from './types';
 import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from './util';
 import './Game.css';
 
@@ -19,19 +19,19 @@ function Game() {
 
     // board and board functions:
 
-    const [blocks, setBlocks] = useState(Array.from({ length: height }, () => Array(width).fill('')));
+    const [blocks, setBlocks] = useState<Blocks>(Array.from({ length: height }, () => Array(width).fill('')));
 
-    const setBlock = (x: number, y: number, type: string) => {
+    const setBlock = (x: number, y: number, type: blockType) => {
         if (x < width && y < height) {
-            let tempBlocks = JSON.parse(JSON.stringify(blocks));
+            let tempBlocks = JSON.parse(JSON.stringify(blocks)) as Blocks;
             tempBlocks[y][x] = type;
 
             setBlocks(tempBlocks);
         }
     }
 
-    const setMultipleBlocks = (blocklist: [number, number][], type: string) => {
-        let tempBlocks = JSON.parse(JSON.stringify(blocks));
+    const setMultipleBlocks = (blocklist: [number, number][], type: blockType) => {
+        let tempBlocks = JSON.parse(JSON.stringify(blocks)) as Blocks;
         
         for (let block of blocklist) {
             if (block[0] < width && block[1] < height) {
@@ -39,11 +39,19 @@ function Game() {
             }
         }
 
+        // check to clear lines:
+        for (let i = 0; i < tempBlocks.length; i++){
+            if (!tempBlocks[i].includes('')) {
+                tempBlocks.splice(i, 1);
+                tempBlocks.push(Array(width).fill(''));
+                i--;
+            }
+        }
+
         setBlocks(tempBlocks);
     }
 
     // Mino and Mino functions:
-
     const [currMino, setCurrMino] = useState<Mino>();
 
     useEffect(() => {
@@ -66,8 +74,11 @@ function Game() {
             const currOffset = srsOffsets[currMino.type];
             const rotatedMino = getRotatedMino(currMino, n);
 
-            for (let i = 0; i < currOffset.length; i++){
-                const offset = [currOffset[currMino.perm][i][0] - currOffset[rotatedMino.perm][i][0], currOffset[currMino.perm][i][1] - currOffset[rotatedMino.perm][i][1]]
+            for (let i = 0; i < currOffset[currMino.perm].length; i++){
+                const offset = [
+                    currOffset[currMino.perm][i][0] - currOffset[rotatedMino.perm][i][0],
+                    currOffset[currMino.perm][i][1] - currOffset[rotatedMino.perm][i][1]
+                ]
                 const offsetMino = getMovedMino(rotatedMino, offset[0], offset[1])
 
                 if (!collide(blocks, offsetMino)) {
@@ -82,7 +93,6 @@ function Game() {
         if (currMino) {
             const lowestCurrMino = (lowest(blocks, currMino));
             setMultipleBlocks(lowestCurrMino.blocks, lowestCurrMino.type);
-
             setCurrMino(getNewMino(popFromQueue(), spawnX, spawnY));
         }
     }
@@ -118,11 +128,6 @@ function Game() {
         setQueueMinos(newQueue);
         return removedMino;
     }
-    // useEffect(() => {
-    //     while (queueMinos.length < minQueueLength) {
-    //         setQueueMinos([...queueMinos, ...getShuffledQueue()])
-    //     }
-    // }, [queueMinos])
 
     // controls:
     const default_settings = {

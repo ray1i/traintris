@@ -27,7 +27,7 @@ export const getNewMino = (type: keyof typeof minoTypes, ox = 0, oy = 0): Mino =
 }
 
 export const getMovedMino = (m: Mino, x: number, y: number) : Mino => {
-    let newBlocks = m.blocks.map(block => [block[0] + x, block[1] + y] as [number, number])
+    const newBlocks = m.blocks.map(block => [block[0] + x, block[1] + y] as [number, number])
     return {
         ...m,
         blocks: newBlocks,
@@ -47,7 +47,7 @@ export const getRotatedMino = (m: Mino, n: number) : Mino => {
     return {
         ...m,
         blocks: newBlocks,
-        perm: numRotations
+        perm: (m.perm + numRotations) % 4
     }
 }
 

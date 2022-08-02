@@ -380,38 +380,6 @@ export {}
 //     holdMino = null
 // }
 
-// // this is for drawing on the board with mouse.
-// var board_elem = document.getElementById('board');
-// var drawing = false; // 1 for drawing, 2 for erasing
-// board_elem.addEventListener("mousedown", (e) => {
-//     if (board.blocks[19 - Math.floor(e.offsetY/blocksize)][Math.floor(e.offsetX/blocksize)]) {
-//         board.blocks[19 - Math.floor(e.offsetY/blocksize)][Math.floor(e.offsetX/blocksize)] = 0;
-//         drawing = 2;
-//     }
-//     else {
-//         board.blocks[19 - Math.floor(e.offsetY/blocksize)][Math.floor(e.offsetX/blocksize)] = 'G';
-//         drawing = 1;
-//     }
-// });
-
-// board_elem.addEventListener("mousemove", (e) => {
-//     if (drawing === 1){
-//         if (19 - Math.floor(e.offsetY/blocksize) < board.height && Math.floor(e.offsetX/blocksize) < board.width){
-//             board.blocks[19 - Math.floor(e.offsetY/blocksize)][Math.floor(e.offsetX/blocksize)] = 'G'
-//         }
-//     }
-//     else if (drawing === 2){
-//         if (19 - Math.floor(e.offsetY/blocksize) < board.height && Math.floor(e.offsetX/blocksize) < board.width){
-//             board.blocks[19 - Math.floor(e.offsetY/blocksize)][Math.floor(e.offsetX/blocksize)] = 0
-//         }
-//     }
-// });
-
-// board_elem.addEventListener("mouseup", (e) => {
-//     drawing = false;
-// });
-
-
 // // this is for putting text on the controls.
 // ctrls_buttons = document.getElementsByClassName('controls-button')
 // for (let i=0; i<ctrls_buttons.length; i++){
