@@ -1,8 +1,8 @@
-import { minoTypes, minoIndexes, blocksize } from "../../data/minodata";
+import { minoTypes, minoIndexes, blocksize } from "../data/minodata";
 
-import { Mino, minoType } from "./types";
+import { Mino, minoType } from "../types/types";
 
-import blocksheet from '../../img/blocksheet.png'
+import blocksheet from '../img/blocksheet.png'
 
 export const collide = (b: string[][], m: Mino): boolean => {
 

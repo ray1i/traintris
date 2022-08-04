@@ -65,25 +65,6 @@ function App() {
             </div>
 
             <Game />
-
-            <div id="pc-finder" className="section">
-                <h1 className="section-title" hidden>PC FINDER</h1>
-
-                <button className="button" id="pc-start-button">FIND PC</button>
-
-                <canvas id='pc-canvas' width="320" height="640"></canvas>
-
-                <div id="pc-buttons">
-                    <button className="button">PREV</button>
-                    <button className="button">NEXT</button>
-                </div>
-
-                <p id='pc-result'></p>
-                <p id='pc-progress' hidden></p>
-
-                <script src="traintris.js"></script>
-            </div>
-
         </div>
     );
 }

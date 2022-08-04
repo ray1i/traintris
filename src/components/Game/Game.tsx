@@ -4,9 +4,11 @@ import Board from './Board';
 import Hold from './Hold';
 import Queue from './Queue';
 
+import PCFinder from '../PCFinder/PCFinder';
+
 import { srsOffsets } from '../../data/minodata';
-import { minoType, Mino, Blocks, blockType } from './types';
-import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from './util';
+import { minoType, Mino, Blocks, blockType } from '../../types/types';
+import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from '../../scripts/util';
 import './Game.css';
 
 const width = 10;
@@ -175,36 +177,41 @@ function Game() {
     }
 
     return (
-        <div
-            className="section"
-            onKeyDown={handleControls}>
+        <>
+            <div
+                className="section"
+                onKeyDown={handleControls}>
 
-            <div id="traintris-game" tabIndex={1}>
+                <div id="traintris-game" tabIndex={1}>
 
-                <Hold 
-                    holdMino={holdMino}
-                />
+                    <Hold 
+                        holdMino={holdMino}
+                    />
 
-                <Board
-                    blocks={blocks}
-                    currMino={currMino}
-                    setBlock={setBlock}
-                />
+                    <Board
+                        blocks={blocks}
+                        currMino={currMino}
+                        setBlock={setBlock}
+                    />
 
-                <Queue 
-                    queueMinos={queueMinos}
-                />
+                    <Queue
+                        queueMinos={queueMinos}
+                    />
 
+                </div>
+
+                <div id='undo-redo'>
+
+                    <button className='small-button' title='Ctrl+Z'>UNDO</button>
+                    <button className='small-button' title='Ctrl+Y'>REDO</button>
+
+                </div>
             </div>
 
-            <div id='undo-redo'>
-
-                <button className='small-button' title='Ctrl+Z'>UNDO</button>
-                <button className='small-button' title='Ctrl+Y'>REDO</button>
-
-            </div>
-
-        </div>
+            <PCFinder 
+                blocks={blocks}
+            />
+        </>
     );
 }
 
