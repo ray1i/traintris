@@ -1,10 +1,10 @@
 import { minoTypes, minoIndexes, blocksize } from "../data/minodata";
 
-import { Mino, minoType } from "../types/types";
+import { Mino, minoType, Blocks } from "../types/types";
 
 import blocksheet from '../img/blocksheet.png'
 
-export const collide = (b: string[][], m: Mino): boolean => {
+export const collide = (b: Blocks, m: Mino): boolean => {
 
     for (let block of m.blocks) {
         if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
@@ -14,7 +14,7 @@ export const collide = (b: string[][], m: Mino): boolean => {
     return false;
 }
 
-export const getNewMino = (type: keyof typeof minoTypes, ox = 0, oy = 0): Mino => {
+export const getNewMino = (type: minoType, ox = 0, oy = 0): Mino => {
     let blocks = minoTypes[type].map(block => [ox + block[0], oy + block[1]] as [number, number]);
 
     return {
@@ -51,7 +51,7 @@ export const getRotatedMino = (m: Mino, n: number) : Mino => {
     }
 }
 
-export const lowest = (b: string[][], m: Mino): Mino => {
+export const lowest = (b: Blocks, m: Mino): Mino => {
     let i = -1
     let tempMino = getMovedMino(m, 0, i);
 

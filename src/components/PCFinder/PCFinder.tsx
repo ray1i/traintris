@@ -17,7 +17,7 @@ const PCFinder = (props: PCFinderProps) => {
         pcWorker.postMessage({b: 1})
 
         pcWorker.onmessage = (e: any) => {
-            console.log('done');
+            console.log('done', e);
         }
         pcWorker.onerror = (e: any) => {
             console.log('error');
