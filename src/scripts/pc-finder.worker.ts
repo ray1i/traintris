@@ -1,10 +1,10 @@
-export {}
-
 // // eslint-disable-next-line no-restricted-globals
 // const ctx: Worker = self as any;
 
 // // Respond to message from parent thread
 // ctx.addEventListener("message", (event) => console.log(event));
+
+import { minoTypes, srsOffsets } from '../data/minodata'
 
 type minoType = 'I' | 'O' | 'T' | 'L' | 'J' | 'Z' | 'S';
 
@@ -19,75 +19,6 @@ interface Mino {
 type blockType = minoType | 'G' | ''
 
 type Blocks = blockType[][]
-
-export const minoTypes = {
-    "I": [[-1, 0], [ 0, 0], [ 1, 0], [ 2, 0]],
-
-    "O": [         [ 0, 1], [ 1, 1], 
-                   [ 0, 0], [ 1, 0]],
-
-    "T": [         [ 0, 1], 
-          [-1, 0], [ 0, 0], [ 1, 0]],
-
-    "L": [                  [ 1, 1], 
-          [-1, 0], [ 0, 0], [ 1, 0]],
-
-    "J": [[-1, 1], 
-          [-1, 0], [ 0, 0], [ 1, 0]],
-
-    "Z": [[-1, 1], [ 0, 1], 
-                   [ 0, 0], [ 1, 0]],
-
-    "S": [         [ 0, 1], [ 1, 1], 
-          [-1, 0], [ 0, 0]],
-};
-
-
-// SRS
-export const srsOffsets = {
-    I: [
-        [[ 0, 0], [-1, 0], [+2, 0], [-1, 0], [+2, 0]],
-        [[-1, 0], [ 0, 0], [ 0, 0], [ 0,+1], [ 0,-2]],
-        [[-1, +1], [+1,+1], [-2,+1], [+1, 0], [-2, 0]],
-        [[ 0,+1], [ 0,+1], [ 0,+1], [ 0,-1], [ 0,+2]]
-    ],
-    O: [
-        [[ 0, 0]],
-        [[ 0,-1]],
-        [[-1,-1]],
-        [[-1, 0]]
-    ],
-    T: [
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [+1, 0], [+1,-1], [ 0,+2], [+1,+2]],
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
-    ],
-    L: [
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [+1, 0], [+1,-1], [ 0,+2], [+1,+2]],
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
-    ],
-    J: [
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [+1, 0], [+1,-1], [ 0,+2], [+1,+2]],
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
-    ],
-    Z: [
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [+1, 0], [+1,-1], [ 0,+2], [+1,+2]],
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
-    ],
-    S: [
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [+1, 0], [+1,-1], [ 0,+2], [+1,+2]],
-        [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
-        [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
-    ],
-};
 
 const getNewMino = (type: minoType, ox = 0, oy = 0): Mino => {
     let blocks = minoTypes[type].map(block => [ox + block[0], oy + block[1]] as [number, number]);
@@ -136,25 +67,13 @@ const collide = (b: Blocks, m: Mino): boolean => {
 }
 
 function topless_collide(b: Blocks, m: Mino): boolean{ // collide that doesn't trigger on top undefined
-    for (let block of m.blocks){
-        if (block[1] >= b.length){}
+    for (let block of m.blocks) {
+        if (block[1] >= b.length && (0 <= block[0] && block[0] < 10)) {}
         else if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
             return true;
         }
     }
     return false
-}
-
-const lowest = (b: Blocks, m: Mino): Mino => {
-    let i = -1
-    let tempMino = getMovedMino(m, 0, i);
-
-    while (!collide(b, tempMino)){
-        i--;
-        tempMino = getMovedMino(m, 0, i);
-    }
-
-    return getMovedMino(m, 0, i + 1);
 }
 
 const setMultipleBlocks = (b: Blocks, blocklist: [number, number][], type: blockType) => {
@@ -170,7 +89,7 @@ const setMultipleBlocks = (b: Blocks, blocklist: [number, number][], type: block
     for (let i = 0; i < tempBlocks.length; i++){
         if (!tempBlocks[i].includes('')) {
             tempBlocks.splice(i, 1);
-            tempBlocks.push(Array(10).fill(''));
+            // tempBlocks.push(Array(10).fill(''));
             i--;
         }
     }
@@ -180,48 +99,51 @@ const setMultipleBlocks = (b: Blocks, blocklist: [number, number][], type: block
 
 // when it gets input from the main file, run everything else.
 // state.data has b (2d Array of Chars), curr (Char), hold (Char), queue (Array of Chars)
-onmessage = (state) => {
-    // if hold exists, append current mino to beginning of queue, otherwise make current mino held
-    let new_queue = [...state.data.queue];
-    let new_hold: minoType;
+onmessage = (msg: MessageEvent) => {
+    console.log('message received');
+    const state: {b: Blocks, hold: minoType, queue: minoType[]} = msg.data;
 
-    if (state.data.hold != null){
-        new_queue.splice(0, 0, state.data.curr);
-        new_hold = state.data.hold
+    // if hold exists, append current mino to beginning of queue, otherwise make current mino held
+    let new_queue = [...state.queue];
+    let new_hold: minoType | undefined;
+
+    if (state.hold != null) {
+        new_hold = state.hold; 
     }
     else {
-        new_hold = state.data.curr
+        new_hold = new_queue.shift();
     }
 
-    const stackHeight = 
-    
-    let new_b = copy_board({width: state.data.b[0].length, blocks: state.data.b})
-
-    for (let h=1; h<5; h++){
-        
-        console.log('searching for ' + h + '-height pcs...')
-
-        if (is_pcable(new_b, [new_hold].concat(new_queue), h)){
-            get_all_pcs(new_b, new_queue.slice(), new_hold, new Array, h);     
+    const stackHeight = state.b.reduce((acc, row, i) => {
+        if (row.some(block => block !== '')) {
+            return i + 1;
+        } else {
+            return acc;
         }
+    }, 0);
+    
+    const new_b = JSON.parse(JSON.stringify(state.b)).slice(0, stackHeight); 
 
+    let solutions: Mino[][];
+    if (!new_hold || stackHeight === 0) {
+        solutions = [];
+    } else {
+        solutions = getAllPCs(new_b, new_queue, new_hold);
     }
+    // solutions = eliminate_duplicate_solutions(new_b, solutions);
 
-    solutions = eliminate_duplicate_solutions(new_b, solutions);
-
-    self.postMessage(solutions)
+    postMessage(solutions);
 
     console.log('finished.')
 }
 
-function getAllPCs(b: Blocks, queue: minoType[], curr: minoType): Mino[][] {
+function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     let result = [] as Mino[][];
 
     for (let h = 1; h < 5; h++){
-        console.log('searching for ' + h + '-height pcs...')
-
         if (is_pcable(b, queue, h)){
-            result = [...result, ...get_all_pcs(b, queue, curr, new Array, h)]; 
+            console.log(`searching for ${h}-height pcs...`)
+            result = [...result, ...getAllPCsByHeight(b, queue, hold, h)]; 
         }
     }
     
@@ -233,7 +155,7 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     for (let i = height; i < b.length; i++){        
         for (let block of b[i]){
             if (block) {
-                console.log('Board height is higher than ' + height + '!')
+                console.log(`Board height is higher than ${height}!`)
                 return false;
             }
         }
@@ -241,10 +163,8 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     
     // check if number of empty spaces on board is divisible by 4
     let empty_blocks = 0;
-    for (let i = 0; i < height; i++){        
-        for (let block of b[i]){
-            if (!block) empty_blocks++;
-        }
+    for (let row of b){        
+        empty_blocks += row.reduce((acc, block) => acc += (block === '' ? 1 : 0), 0);
     }
     if (empty_blocks % 4 != 0) {
         console.log('Remaining space is not divisible by 4!')
@@ -323,47 +243,57 @@ function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
         is_reachable(b, getMovedMino(m, 1, 0), iter + 1)) {
         return true;
     }
-
     // check each rotation, don't check if O piece
     else if (m.type != 'O'){
-        return false;
-        for (let rot = 1; rot < 4; rot++){
-            for (let os = 0; os < 5; os++){
+        for (let rot = 1; rot < 4; rot++) {
+            // check each offset:
+            for (let os = 0; os < 5; os++) {
                 // setting up the offset values
                 let oldperm = (m.perm + rot + 4) % 4
                 let offset = [
                     srsOffsets[m.type][oldperm][os][0] - srsOffsets[m.type][m.perm][os][0],
                     srsOffsets[m.type][oldperm][os][1] - srsOffsets[m.type][m.perm][os][1]
                 ] as [number, number];
-               /* 
-                // creating copy of m rotate it and apply proper offset
-                let new_m = getRotatedMino(getMovedMino(m, -offset[0], -offset[1]), rot); 
                 
-                // create copy of rotated m so we can check if the spin is actually what happens
-                let rotated_new_m = new_m.copy(0, 0)
-                rotated_new_m.srs_rotate(b, -rot + 4) //-rot + 4 undoes rotation
+                // create copy of m, rotate it, and apply reversed offset
+                const possibleOldMino = getRotatedMino(getMovedMino(m, -offset[0], -offset[1]), rot); 
+                
+                if (!topless_collide(b, possibleOldMino)) {
+                    // rotate the possible old mino to check if the spin is actually what happens
+                    const currOffset = srsOffsets[possibleOldMino.type];
+                    const rotatedOldMino = getRotatedMino(possibleOldMino, -rot + 4); // -rot + 4 undoes rotation
 
-                if (JSON.stringify(rotated_new_m.o) === JSON.stringify(m.o)){ // check if the spin is actually possible
-                    if (is_reachable(b, new_m, iter+1)) {
-                        return true;
+                    for (let i = 0; i < currOffset[possibleOldMino.perm].length; i++) {
+                        const offset = [
+                            currOffset[possibleOldMino.perm][i][0] - currOffset[rotatedOldMino.perm][i][0],
+                            currOffset[possibleOldMino.perm][i][1] - currOffset[rotatedOldMino.perm][i][1]
+                        ]
+                        const offsetMino = getMovedMino(rotatedOldMino, offset[0], offset[1])
+
+                        // check if the rotated old mino becomes the mino we want
+                        if (!topless_collide(b, offsetMino)) {
+                            if (offsetMino.ox === m.ox && offsetMino.oy === m.oy &&
+                                is_reachable(b, possibleOldMino, iter + 1)) {
+                                return true;
+                            } else {
+                                break;
+                            }
+                        }
                     }
-                }*/
+                }
             }
         }
     }
-    else {
-        return false;
-    }
 
+    return false;
 }
 
-function get_all_pcs(b: Blocks, queue: minoType[], hold: minoType, height=4): Mino[][] {
+function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height: number = 4): Mino[][] {
 
     interface State {
         blocks: Blocks,
         queue: minoType[],
         hold: minoType,
-        height: number, // number of lines left to clear
         history: Mino[],
     }
 
@@ -371,51 +301,60 @@ function get_all_pcs(b: Blocks, queue: minoType[], hold: minoType, height=4): Mi
         blocks: b,
         queue: queue,
         hold: hold,
-        height: height,
         history: []
     }];
     const result: Mino[][] = [];
 
     while (searchQueue.length > 0) {
-        const { blocks, queue, hold, height, history } = searchQueue.shift()!;
-        
-        if (height === 0) {
-            result.push(history);
+        const currState = searchQueue.shift()!;
+        const new_b = currState.history.length > 0 ? 
+        setMultipleBlocks(
+            currState.blocks, 
+            currState.history[currState.history.length - 1].blocks, 
+            currState.history[currState.history.length - 1].type
+        ) :
+        JSON.parse(JSON.stringify(currState.blocks)) as Blocks;
+
+        if (new_b.length === 0) {
+            result.push(currState.history);
         } else {
-            
+            if (currState.queue.length <= 0 && currState.hold === null) {
+                // pass
+            }
+            // else if (seen_boards.includes(JSON.stringify([queue[0], ...new_b.blocks]))){
+            //     // pass
+            // }
+            else {
+                // seen_boards.push(JSON.stringify([queue[0], ...new_b.blocks]))
+
+                // current mino as next
+                for (let m of get_all_lowest(new_b, currState.queue[0], currState.blocks.length)) {
+                    searchQueue.push({
+                        blocks: new_b,
+                        queue: currState.queue.slice(1),
+                        hold: currState.hold,
+                        history: [...currState.history, m]
+                    })
+                }
+
+                // hold mino as next
+                for (let m of get_all_lowest(new_b, currState.hold, currState.blocks.length)) {
+                    searchQueue.push({
+                        blocks: new_b,
+                        queue: [...currState.queue],
+                        hold: currState.queue[0],
+                        history: [...currState.history, m]
+                    })
+
+                }
+            }
         }
-    }  
-
-    let new_b = setMultipleBlocks(b, history[history.length - 1].blocks, history[history.length - 1].type);
-
-    // if the board is empty i.e. if it's a pc
-    if (new_b.height === 0) {
-        result.push(history);
-        return;
     }
-    else if (queue.length <= 0 && hold === null) {
-        return;
-    }
-    else if (seen_boards.includes(JSON.stringify([queue[0], ...new_b.blocks]))){
-        return;
-    }
-    else {
-        seen_boards.push(JSON.stringify([queue[0], ...new_b.blocks]))
 
-        // current mino as next
-        for (let mino of get_all_lowest(queue[0], new_b, new_b.height)){
-            new_new_b = copy_board(new_b, new_b.height)
-            get_all_pcs(new_new_b, queue.slice(1), hold, history.concat(mino), new_new_b.height)
-        }
-
-        // hold mino as next
-        for (let mino of get_all_lowest(hold, new_b, new_b.height)){
-            new_new_b = copy_board(new_b, new_b.height)
-            get_all_pcs(new_new_b, queue.slice(1), queue[0], history.concat(mino), new_new_b.height)
-        }
-    }
+    return result;
 }
 
+/*
 function eliminate_duplicate_solutions(b, sols){
     let new_sols = new Array;
     let seen = new Array;
@@ -471,4 +410,6 @@ function eliminate_duplicate_solutions(b, sols){
 
     return new_sols;
 }
+*/
 
+export {}

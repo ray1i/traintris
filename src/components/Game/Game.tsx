@@ -210,6 +210,9 @@ function Game() {
 
             <PCFinder 
                 blocks={blocks}
+                currMino={currMino?.type}
+                holdMino={holdMino}
+                queueMinos={queueMinos}
             />
         </>
     );

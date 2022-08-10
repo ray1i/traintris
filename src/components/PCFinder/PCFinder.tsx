@@ -11,16 +11,24 @@ import Worker from "worker-loader!../../scripts/pc-finder.worker.ts";
 
 const PCFinder = (props: PCFinderProps) => {
 
-    const pcWorker: Worker = new Worker();
+    const startPCWorker = () => {
+        if (props.queueMinos) {
+            const pcWorker: Worker = new Worker();
 
-    const start_pc_worker = () => {
-        pcWorker.postMessage({b: 1})
+            const state = {
+                b: props.blocks,
+                hold: props.holdMino,
+                queue: [props.currMino, ...props.queueMinos]
+            }
 
-        pcWorker.onmessage = (e: any) => {
-            console.log('done', e);
-        }
-        pcWorker.onerror = (e: any) => {
-            console.log('error');
+            pcWorker.postMessage(state)
+
+            pcWorker.onmessage = (e: MessageEvent) => {
+                console.log('done', e);
+            }
+            pcWorker.onerror = (e: ErrorEvent) => {
+                console.log('error', e);
+            }
         }
     }
 
@@ -31,13 +39,13 @@ const PCFinder = (props: PCFinderProps) => {
             <button
                 id="pc-start-button"
                 className="button"
-                onClick={start_pc_worker}
-                >
+                onClick={startPCWorker}
+            >
                 FIND PC
             </button>
 
             <Board
-                blocks={props.blocks} 
+                blocks={props.blocks}
             />
 
             <div id="pc-buttons">
