@@ -63,9 +63,10 @@ export const lowest = (b: Blocks, m: Mino): Mino => {
     return getMovedMino(m, 0, i + 1);
 }
 
-const blocksheetSprite = new Image();
-blocksheetSprite.src = blocksheet;
 export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
+    const blocksheetSprite = new Image();
+    blocksheetSprite.src = blocksheet;
+
     const heightOffset = ctx.canvas.height / blocksize - 1; 
 
     for (let block of m.blocks) {
@@ -116,4 +117,47 @@ export const getMinoHeight = (m: Mino): number => {
         }
     })
     return seen.length;
+}
+
+export const getBoardWithPlacedMinos = (b: Blocks, minos: Mino[]): Blocks => {
+    
+    const new_b: Blocks = Array.from({ length: 4 }, () => Array(10).fill('')) // fills with blocks
+    // offset is to cover for if any lines are cleared in the middle of the solution
+    let offset = Array(4).fill(0);
+    const cleared = Array(4).fill(false)
+
+    for (let m of minos) {
+
+        for (let block of m.blocks) {
+            new_b[block[1] + offset[block[1]]][block[0]] = m.type;
+        }
+
+        // check if any lines have been cleared, if so, modify offset appropriately
+        let new_offset = offset.slice()
+
+        for (let row = 3; row >= 0; row--) {
+            if (!cleared[row]) {
+                let sum = 0;
+                for (let block = 0; block < 10; block++) {
+                    if (b[row][block] !== '' || new_b[row][block] !== '') {
+                        sum++;
+                    }
+                }
+
+                if (sum === 10) {
+                    // modifying offset
+                    new_offset.splice(row - offset[row], 1)
+                    for (let i = row - offset[row]; i < new_offset.length; i++) {
+                        new_offset[i]++;
+                    }
+                    new_offset.push(new_offset[new_offset.length - 1])
+                    cleared[row] = true
+                }
+            }
+        }
+
+        offset = new_offset.slice()
+    }
+
+    return new_b;
 }

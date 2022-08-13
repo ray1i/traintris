@@ -2,11 +2,11 @@ import { useRef, useEffect, useState } from "react"
 
 import { minoIndexes, blocksize } from "../../data/minodata"
 
+import { minoType, BoardProps } from "../../types/types"
+import { lowest, drawMino } from "../../scripts/util"
+
 import board from '../../img/board.png'
 import blocksheet from '../../img/blocksheet.png'
-
-import { BoardProps } from "../../types/types"
-import { lowest, drawMino } from "../../scripts/util"
 
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
@@ -32,7 +32,7 @@ const Board = (props: BoardProps) => {
                     for (let j = 0; j < props.blocks[i].length; j++){
                         ctx.drawImage(
                             blocksheetSprite,
-                            blocksize * minoIndexes[props.blocks[i][j] as keyof typeof minoIndexes],
+                            blocksize * minoIndexes[props.blocks[i][j] as minoType],
                             0,
                             blocksize,
                             blocksize,

@@ -5,6 +5,7 @@
 // ctx.addEventListener("message", (event) => console.log(event));
 
 import { minoTypes, srsOffsets } from '../data/minodata'
+import { getBoardWithPlacedMinos } from './util';
 
 type minoType = 'I' | 'O' | 'T' | 'L' | 'J' | 'Z' | 'S';
 
@@ -130,7 +131,8 @@ onmessage = (msg: MessageEvent) => {
     } else {
         solutions = getAllPCs(new_b, new_queue, new_hold);
     }
-    // solutions = eliminate_duplicate_solutions(new_b, solutions);
+
+    solutions = eliminate_duplicate_solutions(new_b, solutions);
 
     postMessage(solutions);
 
@@ -142,7 +144,7 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
 
     for (let h = 1; h < 5; h++){
         if (is_pcable(b, queue, h)){
-            console.log(`searching for ${h}-height pcs...`)
+            // console.log(`searching for ${h}-height pcs...`)
             result = [...result, ...getAllPCsByHeight(b, queue, hold, h)]; 
         }
     }
@@ -155,7 +157,7 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     for (let i = height; i < b.length; i++){        
         for (let block of b[i]){
             if (block) {
-                console.log(`Board height is higher than ${height}!`)
+                // console.log(`Board height is higher than ${height}!`)
                 return false;
             }
         }
@@ -166,14 +168,14 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     for (let row of b){        
         empty_blocks += row.reduce((acc, block) => acc += (block === '' ? 1 : 0), 0);
     }
-    if (empty_blocks % 4 != 0) {
-        console.log('Remaining space is not divisible by 4!')
+    if (empty_blocks % 4 !== 0) {
+        // console.log('Remaining space is not divisible by 4!')
         return false;
     }
 
     // check if queue length is long enough to pc
     if (empty_blocks / 4 > queue.length) {
-        console.log('Queue is not long enough!')
+        // console.log('Queue is not long enough!')
         return false;
     }
 
@@ -244,7 +246,7 @@ function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
         return true;
     }
     // check each rotation, don't check if O piece
-    else if (m.type != 'O'){
+    else if (m.type !== 'O'){
         for (let rot = 1; rot < 4; rot++) {
             // check each offset:
             for (let os = 0; os < 5; os++) {
@@ -317,6 +319,8 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
 
         if (new_b.length === 0) {
             result.push(currState.history);
+
+            // if (result.length % 10 === 0) console.log(`found ${result.length} solutions...`);
         } else {
             if (currState.queue.length <= 0 && currState.hold === null) {
                 // pass
@@ -354,46 +358,13 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
     return result;
 }
 
-/*
-function eliminate_duplicate_solutions(b, sols){
-    let new_sols = new Array;
-    let seen = new Array;
+function eliminate_duplicate_solutions(b: Blocks, sols: Mino[][]): Mino[][] {
+    let new_sols = []; 
+    let seen = []; 
 
     for (let s of sols){
 
-        let new_b = Array.from({length: 4}, () => Array(10).fill(0)) // fills with blocks
-         // offset is to cover for if any lines are cleared in the middle of the solution
-        let offset = Array(4).fill(0);
-        let cleared = Array(4).fill(false)
-        for (let m of s){
-
-            for (let i=0; i<m.blocks.length; i++){
-                new_b[m.o.y + m.blocks[i][1] + offset[m.o.y + m.blocks[i][1]]][m.o.x + m.blocks[i][0]] = m.type;
-            }
-
-            // check if any lines have been cleared, if so, modify offset appropriately
-            let new_offset = offset.slice()
-            for (let row=3; row>=0; row--){
-                if (!cleared[row]){
-                    let sum = 0;
-                    for (let block=0; block<10; block++){
-                        if (b.blocks[row][block] != 0 || new_b[row][block] != 0){
-                            sum++;
-                        }
-                    }
-                    if (sum === 10){
-                        // modifying offset
-                        new_offset.splice(row-offset[row], 1)
-                        for (let i=row-offset[row]; i<new_offset.length; i++){
-                            new_offset[i]++;
-                        }
-                        new_offset.push(new_offset[new_offset.length - 1])
-                        cleared[row] = true
-                    }
-                }       
-            }
-            offset = new_offset.slice()
-        }
+        let new_b = getBoardWithPlacedMinos(b, s);
 
         let was_seen = false; 
         for (let arrangement of seen){
@@ -402,6 +373,7 @@ function eliminate_duplicate_solutions(b, sols){
                 break;
             }
         }
+
         if (!was_seen){
             seen.push(new_b);
             new_sols.push(s);
@@ -410,6 +382,5 @@ function eliminate_duplicate_solutions(b, sols){
 
     return new_sols;
 }
-*/
 
 export {}
