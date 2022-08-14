@@ -345,7 +345,7 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
                 for (let m of get_all_lowest(new_b, currState.hold, currState.blocks.length)) {
                     searchQueue.push({
                         blocks: new_b,
-                        queue: [...currState.queue],
+                        queue: currState.queue.slice(1),
                         hold: currState.queue[0],
                         history: [...currState.history, m]
                     })
