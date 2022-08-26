@@ -176,6 +176,7 @@ function Game() {
         <>
             <Settings 
                 currentSettings={settings}
+                setSettings={setSettings}
                 saveSettings={saveSettings}
             />
 

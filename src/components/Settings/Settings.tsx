@@ -6,6 +6,7 @@ import ControlsButton from "./ControlsButton";
 
 interface SettingsProps {
     currentSettings: SettingsObject;
+    setSettings: (settings: SettingsObject) => void;
     saveSettings: (settings: SettingsObject) => void;
 }
 
@@ -15,7 +16,7 @@ const Settings = (props: SettingsProps) => {
         return (value: string | null) => {
             const newSettings = { ...props.currentSettings };
             newSettings[control] = value;
-            props.saveSettings(newSettings);
+            props.setSettings(newSettings);
         }
     }
 
@@ -47,11 +48,6 @@ const Settings = (props: SettingsProps) => {
                     </tbody>
                 </table>
 
-                <div id='settings-buttons'>
-                    <button className='button'>SAVE</button>
-                    <button className='button'>DEFAULT</button>
-                </div>
-
                 <h2>CONTROLS:</h2>
                 <div id='controls-settings'>
                     <ControlsButton
@@ -68,8 +64,8 @@ const Settings = (props: SettingsProps) => {
 
                     <ControlsButton
                         label='ROTATE LEFT'
-                        value={props.currentSettings.clockwise}
-                        setControl={getSetControlFunction('clockwise')}
+                        value={props.currentSettings.counterClockwise}
+                        setControl={getSetControlFunction('counterClockwise')}
                     />
 
                     <ControlsButton
@@ -108,10 +104,24 @@ const Settings = (props: SettingsProps) => {
                         setControl={getSetControlFunction('reset')}
                     />
                 </div>
-
+                
+                <div id='settings-buttons'>
+                    <button
+                        className='button'
+                        onClick={e => props.saveSettings(props.currentSettings)}
+                    >
+                        SAVE
+                    </button>
+                    <button
+                        className='button'
+                        onClick={e => props.setSettings(defaultSettings)}
+                    >
+                        DEFAULT
+                    </button>
+                </div>
             </div>
         </>
     )
-    }
+}
 
 export default Settings;
