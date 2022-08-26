@@ -1,4 +1,4 @@
-import { minoTypes, minoIndexes, blocksize } from "../data/minodata";
+import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
 
 import { Mino, minoType, Blocks } from "../types/types";
 

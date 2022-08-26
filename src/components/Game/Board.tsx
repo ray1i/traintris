@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 
-import { minoIndexes, blocksize } from "../../data/minodata"
+import { minoIndexes, blocksize } from "../../constants/minodata"
 
 import { minoType, BoardProps } from "../../types/types"
 import { lowest, drawMino } from "../../scripts/util"

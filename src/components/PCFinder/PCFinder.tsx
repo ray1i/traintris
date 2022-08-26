@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { minoIndexes, blocksize } from "../../data/minodata"
+import { minoIndexes, blocksize } from "../../constants/minodata"
 
 import { Mino, Blocks, PCFinderProps, minoType } from '../../types/types';
 

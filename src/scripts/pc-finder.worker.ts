@@ -4,7 +4,7 @@
 // // Respond to message from parent thread
 // ctx.addEventListener("message", (event) => console.log(event));
 
-import { minoTypes, srsOffsets } from '../data/minodata'
+import { minoTypes, srsOffsets } from '../constants/minodata'
 import { getBoardWithPlacedMinos } from './util';
 
 type minoType = 'I' | 'O' | 'T' | 'L' | 'J' | 'Z' | 'S';

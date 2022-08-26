@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
+import Settings from '../Settings/Settings';
+import { SettingsObject } from '../../types/settingsTypes';
+import defaultSettings from '../../constants/defaultSettings';
+
 import Board from './Board';
 import Hold from './Hold';
 import Queue from './Queue';
 
 import PCFinder from '../PCFinder/PCFinder';
 
-import { srsOffsets } from '../../data/minodata';
+import { srsOffsets } from '../../constants/minodata';
 import { minoType, Mino, Blocks, blockType } from '../../types/types';
 import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from '../../scripts/util';
 import './Game.css';
@@ -132,45 +136,37 @@ function Game() {
     }
 
     // controls:
-    const default_settings = {
-        das: 10, 
-        arr: 1, 
-        sd: 1, 
-        left: 'ArrowLeft',
-        right: 'ArrowRight',
-        ccw: 'KeyZ',
-        c: 'ArrowUp',
-        one_eighty: 'KeyA',
-        hold: 'KeyC',
-        soft_drop: 'ArrowDown',
-        hard_drop: 'Space',
-        reset: 'F4'
+    const [settings, setSettings] = useState<SettingsObject>(defaultSettings);
+
+    const saveSettings = (newSettings: SettingsObject) => {
+        setSettings(newSettings);
+        localStorage.setItem('settings', JSON.stringify(newSettings));
     }
 
     const handleControls = (e: React.KeyboardEvent<HTMLDivElement>) => {
         switch (e.code) {
-            case default_settings.left:
+            case settings.left:
                 moveCurrMino(-1, 0);
                 break;
-            case default_settings.right:
+            case settings.right:
                 moveCurrMino(1, 0);
                 break;
-            case default_settings.ccw:
+            case settings.counterClockwise:
                 rotateCurrMino(-1);
                 break;
-            case default_settings.c:
+            case settings.clockwise:
                 rotateCurrMino(1);
                 break;
-            case default_settings.one_eighty:
+            case settings.oneEighty:
                 rotateCurrMino(2);
                 break;
-            case default_settings.hold:
+            case settings.hold:
                 swapHoldMino();
                 break;
-            case default_settings.soft_drop:
+            case settings.softDrop:
                 moveCurrMino(0, -1);
                 break;
-            case default_settings.hard_drop:
+            case settings.hardDrop:
                 placeCurrMino();
                 break;
         }
@@ -178,6 +174,11 @@ function Game() {
 
     return (
         <>
+            <Settings 
+                currentSettings={settings}
+                saveSettings={saveSettings}
+            />
+
             <div
                 className="section"
                 onKeyDown={handleControls}>
