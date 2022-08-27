@@ -75,42 +75,6 @@ p {
   cursor: pointer
 }
 
-#settings{
-  user-select: none;
-  padding: 10px;
-}
-
-.tuning-box{
-  background-color: rgb(165, 165, 165);
-  padding: 6px;
-  text-align: center;
-}
-
-#settings-buttons {
-  margin: 10px;
-  display: flex;
-  justify-content: space-evenly;
-}
-
-#controls-settings {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-}
-
-.controls-button{
-  user-select: none;
-  margin: 0.2em;
-  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: aliceblue;
-  background-color: rgba(156, 156, 156, 0.171);
-  transition: 0.2s;
-}
-.controls-button:hover{
-  background-color: rgba(43, 43, 43, 0.3);
-  cursor: pointer
-}
-
 .small-button {
   margin: 1px;
   font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
