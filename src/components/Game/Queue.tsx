@@ -8,7 +8,7 @@ import { getNewMino, drawMino, getMinoWidth, getMinoHeight } from "../../scripts
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
 
-const Queue = (props: {queueMinos: minoType[]}) => {
+const Queue = (props: {queueMinos: minoType[], setQueueMinos: React.Dispatch<React.SetStateAction<minoType[]>>}) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -35,6 +35,32 @@ const Queue = (props: {queueMinos: minoType[]}) => {
         }
     }, [props.queueMinos])
 
+    const editQueueByPrompt = () => {
+        let newQueueInput = prompt("Enter the new queue", "TIOSLT")?.toUpperCase();
+        const tempQueue: minoType[] | undefined = newQueueInput?.split('')?.filter(char => "TIOSZLJ".includes(char)) as minoType[];
+
+        if (!tempQueue || tempQueue.length <= 0) {
+            alert("Put at least 1 valid piece")
+            return;
+        } else {
+            // // add current state to undo history
+            // let temp_state = get_current_state()
+            // temp_state.queue = [...queue.blocks]
+            // undo_history.push(temp_state)
+
+            // if (undo_history > history_size) undo_history.shift()
+
+            let newQueue: minoType[];
+            if (tempQueue.length > props.queueMinos.length) {
+                newQueue = tempQueue;
+            } else {
+                newQueue = props.queueMinos.map((mino, index) => tempQueue[index] ?? mino)
+            }
+
+            props.setQueueMinos(newQueue);
+        }
+    }
+
     return (
         <div id="queue-container">
             <canvas
@@ -43,6 +69,7 @@ const Queue = (props: {queueMinos: minoType[]}) => {
                 ref={canvasRef}
                 width={128}
                 height={640}
+                onClick={editQueueByPrompt}
             />
         </div>   
     )

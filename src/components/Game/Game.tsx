@@ -198,6 +198,7 @@ function Game() {
 
                     <Queue
                         queueMinos={queueMinos}
+                        setQueueMinos={setQueueMinos}
                     />
 
                 </div>
