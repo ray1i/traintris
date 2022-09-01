@@ -186,8 +186,9 @@ function Game() {
 
                 <div id="traintris-game" tabIndex={1}>
 
-                    <Hold 
+                    <Hold
                         holdMino={holdMino}
+                        setHoldMino={setHoldMino}
                     />
 
                     <Board

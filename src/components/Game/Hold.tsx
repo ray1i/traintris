@@ -8,7 +8,7 @@ import { getNewMino, drawMino, getMinoWidth, getMinoHeight } from "../../scripts
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
 
-const Hold = (props: {holdMino?: minoType | undefined}) => {
+const Hold = (props: {holdMino?: minoType | undefined, setHoldMino: React.Dispatch<React.SetStateAction<minoType | undefined>>}) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -35,6 +35,13 @@ const Hold = (props: {holdMino?: minoType | undefined}) => {
         }
     }, [props.holdMino])
 
+    const editHoldByPrompt = () => {
+        let newHoldInput = prompt("Enter the hold piece", "T")?.toUpperCase();
+        const newHold: minoType[] | undefined = newHoldInput?.split('')?.filter(char => "TIOSZLJ".includes(char)) as minoType[];
+
+        props.setHoldMino(newHold?.[0] ?? null);
+    }
+
     return (
         <div id="hold-container">
             <canvas
@@ -43,6 +50,7 @@ const Hold = (props: {holdMino?: minoType | undefined}) => {
                 ref={canvasRef}
                 width={128}
                 height={128}
+                onClick={editHoldByPrompt}
             />
         </div>
     )
