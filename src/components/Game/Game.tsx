@@ -11,7 +11,7 @@ import Queue from './Queue';
 import PCFinder from '../PCFinder/PCFinder';
 
 import { srsOffsets } from '../../constants/minodata';
-import { minoType, Mino, Blocks, blockType } from '../../types/types';
+import { minoType, Mino, Blocks, blockType, GameState } from '../../types/types';
 import { collide, getNewMino, getMovedMino, getRotatedMino, getShuffledQueue, lowest } from '../../scripts/util';
 import './Game.css';
 
@@ -24,7 +24,6 @@ const spawnY = 19;
 function Game() {
 
     // board and board functions:
-
     const [blocks, setBlocks] = useState<Blocks>(Array.from({ length: height }, () => Array(width).fill('')));
 
     const setBlock = (x: number, y: number, type: blockType) => {
@@ -59,11 +58,6 @@ function Game() {
 
     // Mino and Mino functions:
     const [currMino, setCurrMino] = useState<Mino>();
-
-    useEffect(() => {
-        const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
-        setCurrMino(newMino);
-    }, [])
     
     const moveCurrMino = (x: number, y: number) => {
         if (currMino) {
@@ -97,6 +91,9 @@ function Game() {
 
     const placeCurrMino = () => {
         if (currMino) {
+            addToPastStates(getCurrentState());
+            clearFutureStates();
+
             const lowestCurrMino = (lowest(blocks, currMino));
             setMultipleBlocks(lowestCurrMino.blocks, lowestCurrMino.type);
             setCurrMino(getNewMino(popFromQueue(), spawnX, spawnY));
@@ -135,6 +132,84 @@ function Game() {
         return removedMino;
     }
 
+    // Undo/Redo:
+    const getCurrentState = (): GameState => {
+        return {
+            blocks: JSON.parse(JSON.stringify(blocks)),
+            currMino: currMino?.type,
+            holdMino: holdMino,
+            queueMinos: JSON.parse(JSON.stringify(queueMinos))
+        }
+    }
+
+    const setCurrentState = (state: GameState | null) => {
+        if (state) {
+            setBlocks(JSON.parse(JSON.stringify(state.blocks)));
+            setCurrMino(state.currMino ? getNewMino(state.currMino, spawnX, spawnY) : undefined);
+            setHoldMino(state.holdMino);
+            setQueueMinos(state.queueMinos);
+        }
+    }
+
+    // --
+    const [pastStates, setPastStates] = useState<GameState[]>([]); // retrieved when you undo
+
+    const popFromPastStates = (): GameState | null => {
+        if (pastStates.length > 0) {
+            const poppedState = JSON.parse(JSON.stringify(pastStates[pastStates.length - 1]));
+            setPastStates(pastStates.slice(0, pastStates.length - 1));
+            return poppedState;
+        } else {
+            return null;
+        }
+    }
+
+    const addToPastStates = (state: GameState) => {
+        setPastStates([...pastStates, state]);
+    }
+
+    // -- 
+    const [futureStates, setFutureStates] = useState<GameState[]>([]); // retrieved when you redo
+
+    const popFromFutureStates = (): GameState | null => {
+        if (futureStates.length > 0) {
+            const poppedState = JSON.parse(JSON.stringify(futureStates[0]));
+            setFutureStates(futureStates.slice(1));
+            return poppedState;
+        } else {
+            return null;
+        }
+    }
+
+    const addToFutureStates = (state: GameState) => {
+        setFutureStates([state, ...futureStates]);
+    }
+
+    const clearFutureStates = () => {
+        setFutureStates([]);
+    }
+    
+    // --
+    const undo = () => {
+        if (pastStates.length > 0) {
+            addToFutureStates(getCurrentState());
+            setCurrentState(popFromPastStates());
+        }
+    }
+    
+    const redo = () => {
+        if (futureStates.length > 0) {
+            addToPastStates(getCurrentState());
+            setCurrentState(popFromFutureStates());
+        }
+    }
+
+    // set up the game:    
+    useEffect(() => {
+        const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
+        setCurrMino(newMino);
+    }, [])
+
     // controls:
     const [settings, setSettings] = useState<SettingsObject>(defaultSettings);
 
@@ -144,6 +219,16 @@ function Game() {
     }
 
     const handleControls = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.ctrlKey && e.code === 'KeyZ') {
+            undo();
+            return;
+        }
+
+        if (e.ctrlKey && e.code === 'KeyY') {
+            redo();
+            return;
+        }
+
         switch (e.code) {
             case settings.left:
                 moveCurrMino(-1, 0);
@@ -206,8 +291,26 @@ function Game() {
 
                 <div id='undo-redo'>
 
-                    <button className='small-button' title='Ctrl+Z'>UNDO</button>
-                    <button className='small-button' title='Ctrl+Y'>REDO</button>
+                    <button 
+                        className='small-button'
+                        title='Ctrl+Z'
+                        onClick={e => {
+                            e.currentTarget.blur();
+                            undo();
+                        }}
+                    >
+                        UNDO
+                    </button>
+                    <button
+                        className='small-button'
+                        title='Ctrl+Y'
+                        onClick={e => {
+                            e.currentTarget.blur();
+                            redo();
+                        }}
+                    >
+                        REDO
+                    </button>
 
                 </div>
             </div>

@@ -25,3 +25,10 @@ export interface PCFinderProps {
     holdMino?: minoType,
     queueMinos?: minoType[]
 }
+
+export type GameState = {
+    blocks: Blocks,
+    currMino?: minoType,
+    holdMino?: minoType,
+    queueMinos: minoType[],
+}
