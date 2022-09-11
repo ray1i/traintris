@@ -1,3 +1,3 @@
-# traintris-v2
+# traintris
 
 Tetris training app.
