@@ -19,6 +19,8 @@ const Board = (props: BoardProps) => {
 
     useEffect(() => {
         if (canvasRef.current !== null) {
+            canvasRef.current.focus();
+
             const canvas = canvasRef.current;
             const ctx = canvas.getContext('2d');
             

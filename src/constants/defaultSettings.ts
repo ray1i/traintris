@@ -1,8 +1,8 @@
 import { SettingsObject } from "../types/settingsTypes";
 
 const defaultSettings: SettingsObject = {
-    das: 10,
-    arr: 1,
+    das: 133, // in ms
+    arr: 10,
     sd: 1,
     left: 'ArrowLeft',
     right: 'ArrowRight',
