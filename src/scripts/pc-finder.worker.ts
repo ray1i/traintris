@@ -123,7 +123,7 @@ onmessage = (msg: MessageEvent) => {
         }
     }, 0);
     
-    const new_b = JSON.parse(JSON.stringify(state.b)).slice(0, stackHeight); 
+    const new_b = JSON.parse(JSON.stringify(state.b)).slice(0, Math.max(stackHeight, 4)); 
 
     let solutions: Mino[][];
     if (!new_hold || stackHeight === 0) {
