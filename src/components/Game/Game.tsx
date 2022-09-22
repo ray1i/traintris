@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import Settings from '../Settings/Settings';
 import { SettingsObject } from '../../types/settingsTypes';
@@ -411,9 +411,13 @@ function Game() {
     }
 
     // -- Set up the game:
+    const gameRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
         setCurrMino(newMino);
+
+        if (gameRef.current) gameRef.current.focus();
     }, [])
 
     useEffect(() => {
@@ -438,7 +442,7 @@ function Game() {
                 onKeyUp={handleKeyUp}
                 >
 
-                <div id="traintris-game" tabIndex={1}>
+                <div ref={gameRef} id="traintris-game" tabIndex={1}>
 
                     <Hold
                         holdMino={holdMino}
