@@ -116,14 +116,14 @@ const Settings = (props: SettingsProps) => {
 
             <div id='settings-buttons'>
                 <button
-                    className='button'
-                    onClick={e => props.saveSettings(props.currentSettings)}
+                    className='button-large'
+                    onClick={() => props.saveSettings(props.currentSettings)}
                 >
                     SAVE
                 </button>
                 <button
-                    className='button'
-                    onClick={e => props.setSettings(defaultSettings)}
+                    className='button-large'
+                    onClick={() => props.setSettings(defaultSettings)}
                 >
                     DEFAULT
                 </button>

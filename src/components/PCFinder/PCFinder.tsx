@@ -9,6 +9,8 @@ import { getBoardWithPlacedMinos } from '../../scripts/util';
 import board from '../../img/board.png'
 import blocksheet from '../../img/blocksheet.png'
 
+import './PCFinder.css';
+
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import Worker from "worker-loader!../../scripts/pc-finder.worker.ts";
 
@@ -21,7 +23,7 @@ const PCFinder = (props: PCFinderProps) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const [existingBlocks, setExistingBlocks] = useState<Blocks>();
+    const [existingBlocks, setExistingBlocks] = useState<Blocks>([]);
     const [solutions, setSolutions] = useState<Blocks[]>([]);
     const [solutionIndex, setSolutionIndex] = useState<number>(0);
     
@@ -95,32 +97,32 @@ const PCFinder = (props: PCFinderProps) => {
 
     useEffect(() => {
         // draw the current solution 
-        if (canvasRef.current !== null && existingBlocks && solutions.length > 0) {
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext('2d');
-            
-            if (ctx !== null) {
-                // clear the canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(boardSprite, 0, 0);
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        
+        if (canvas && ctx) {
+            // clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(boardSprite, 0, 0);
 
-                // draw existing board blocks
-                for (let i = 0; i < existingBlocks.length; i++){
-                    for (let j = 0; j < existingBlocks[i].length; j++){
-                        ctx.drawImage(
-                            blocksheetSprite,
-                            blocksize * minoIndexes[existingBlocks[i][j] as minoType],
-                            0,
-                            blocksize,
-                            blocksize,
-                            j * blocksize,
-                            (19 - i) * blocksize,
-                            blocksize,
-                            blocksize);
-                    }
+            // draw existing board blocks
+            for (let i = 0; i < existingBlocks?.length; i++){
+                for (let j = 0; j < existingBlocks[i].length; j++){
+                    ctx.drawImage(
+                        blocksheetSprite,
+                        blocksize * minoIndexes[existingBlocks[i][j] as minoType],
+                        0,
+                        blocksize,
+                        blocksize,
+                        j * blocksize,
+                        (19 - i) * blocksize,
+                        blocksize,
+                        blocksize);
                 }
+            }
 
-                // draw current solution
+            // draw current solution
+            if (solutions.length > 0) { 
                 ctx.globalAlpha = 0.5;
                 for (let i = 0; i < solutions[solutionIndex].length; i++){
                     for (let j = 0; j < solutions[solutionIndex][i].length; j++){
@@ -143,11 +145,11 @@ const PCFinder = (props: PCFinderProps) => {
 
     return (
         <div id="pc-finder" className="section">
-            <h1 className="section-title" hidden>PC FINDER</h1>
+            {/* <h1 className="section-title">PC FINDER</h1> */}
 
             <button
                 id="pc-start-button"
-                className="button"
+                className="button-large"
                 onClick={startPCWorker}
             >
                 FIND PC
@@ -163,30 +165,17 @@ const PCFinder = (props: PCFinderProps) => {
             </div>
 
             <div id="pc-buttons">
-                <button className="button" onClick={goToPrevSolution}>PREV</button>
-                <button className="button" onClick={goToNextSolution}>NEXT</button>
+                <button className="button-large" onClick={goToPrevSolution}>PREV</button>
+                <button className="button-large" onClick={goToNextSolution}>NEXT</button>
             </div>
 
-            {isSolving &&
-                <p id='pc-loading'>
-                    Searching...
-                </p>
-            }
-
-            {isSolved &&
-                <p id='pc-result'>
-                    {solutions.length > 0 ?
-                    `Solution ${solutionIndex + 1} of ${solutions.length}` :
-                    'No solutions found'
-                    }
-                </p>
-            }
-
-            {isError &&
-                <p id='pc-error'>
-                    {errorMessage}
-                </p>
-            }
+            <p id='pc-message'>
+                {isSolving && 'Searching...'}
+                {solutions.length > 0 ?
+                    `Solution ${solutionIndex + 1} of ${solutions.length}`
+                : isSolved ? 'No solutions found' : ''}
+                {isError && errorMessage }
+            </p>
         </div>
     )
 }

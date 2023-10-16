@@ -1,19 +1,12 @@
 
 #settings {
+  width: 100em;
   user-select: none;
-  padding: 10px;
 }
 
 #tuning-settings {
-  display:grid;
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 100%;
-}
-
-.tuning-box {
-  background-color: rgb(165, 165, 165);
-  padding: 6px;
-  text-align: center;
 }
 
 /* get rid of arrows on Chrome, Safari, Edge, Opera */
@@ -29,26 +22,12 @@ input[type=number] {
 }
 
 #settings-buttons {
-  margin: 10px;
+  margin-top: 10px;
   display: flex;
   justify-content: space-evenly;
 }
 
 #controls-settings {
-  display:grid;
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  width: 100%;
-}
-
-.controls-button {
-  user-select: none;
-  margin: 0.2em;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: aliceblue;
-  background-color: rgba(156, 156, 156, 0.171);
-  transition: 0.2s;
-}
-.controls-button:hover {
-  background-color: rgba(43, 43, 43, 0.3);
-  cursor: pointer
 }

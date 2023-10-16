@@ -1,0 +1,17 @@
+#pc-finder {
+  display: grid;
+  user-select: none;
+}
+
+#pc-start-button {
+  margin-bottom: 1em;
+}
+
+#pc-buttons {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+#pc-message {
+  height: 1em;
+}

@@ -444,6 +444,7 @@ function Game() {
 
                 <div ref={gameRef} id="traintris-game" tabIndex={1}>
 
+                    {/* <h2>HOLD</h2> */}
                     <Hold
                         holdMino={holdMino}
                         setHoldMino={setHoldMino}
@@ -455,6 +456,7 @@ function Game() {
                         setBlock={setBlock}
                     />
 
+                    {/* <h2>NEXT</h2> */}
                     <Queue
                         queueMinos={queueMinos}
                         setQueueMinos={setQueueMinos}
@@ -465,7 +467,7 @@ function Game() {
                 <div id='undo-redo'>
 
                     <button 
-                        className='small-button'
+                        className='button-small'
                         title='Ctrl+Z'
                         onClick={e => {
                             e.currentTarget.blur();
@@ -475,7 +477,7 @@ function Game() {
                         UNDO
                     </button>
                     <button
-                        className='small-button'
+                        className='button-small'
                         title='Ctrl+Y'
                         onClick={e => {
                             e.currentTarget.blur();

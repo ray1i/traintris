@@ -1,25 +1,27 @@
 import React from "react";
 
+import './TuningInput.css';
+
 interface TuningInputProps {
     label: string,
     value: number,
     setTuning: (control: number) => void
 }
 
-const TuningInput = (props: TuningInputProps) => {
+const TuningInput = ({label, value, setTuning}: TuningInputProps) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = parseInt(e.target.value);
-        props.setTuning(newValue);
+        setTuning(newValue);
     }
 
     return (
         <>
-            <p>{props.label}:</p>
+            <p className='tuning-box'>{label}:</p>
             <input
                 className='tuning-box'
                 type='number'
-                value={props.value}
+                value={value}
                 onChange={handleChange}
             />
         </>

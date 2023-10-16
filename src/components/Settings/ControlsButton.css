@@ -1,0 +1,13 @@
+button.controls-button {
+  margin: 0.2em;
+  min-width: 12em;
+}
+
+p.controls-button {
+  margin: 0.2em;
+  min-width: 10em;
+}
+
+.editing {
+  color: rgba(240, 248, 255, 0.5) /* aliceblue */
+}

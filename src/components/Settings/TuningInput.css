@@ -1,0 +1,10 @@
+p.tuning-box {
+  margin: 0.6em;
+}
+
+input.tuning-box {
+  background-color: rgb(165, 165, 165);
+  text-align: center;
+  margin: 0.2em;
+  border: none;
+}

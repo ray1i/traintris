@@ -1,5 +1,7 @@
 import React from "react";
 
+import './ControlsButton.css';
+
 interface ControlsButtonProps {
     label: string,
     value: string | null,
@@ -19,9 +21,9 @@ const ControlsButton = (props: ControlsButtonProps) => {
 
     return (
         <>
-            <p>{props.label}:</p>
+            <p className="controls-button">{props.label}:</p>
             <button
-                className="controls-button"
+                className={`controls-button button-small ${props.value === null ? 'editing' : ''}`}
                 onClick={props.value === null ? undefined : handleClick}
                 onKeyDown={props.value === null ? handleKeyDown : undefined}
             >
