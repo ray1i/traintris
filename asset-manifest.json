@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/traintris/static/css/main.0fce0988.css",
-    "main.js": "/traintris/static/js/main.5636e06a.js",
+    "main.css": "/traintris/static/css/main.36d928ec.css",
+    "main.js": "/traintris/static/js/main.e4440491.js",
     "static/js/787.b73e4b0c.chunk.js": "/traintris/static/js/787.b73e4b0c.chunk.js",
-    "static/js/pc-finder.worker.d0e06fa6.worker.js": "/traintris/static/js/pc-finder.worker.d0e06fa6.worker.js",
+    "static/js/pc-finder.worker.4e19e784.worker.js": "/traintris/static/js/pc-finder.worker.4e19e784.worker.js",
     "index.html": "/traintris/index.html",
-    "main.0fce0988.css.map": "/traintris/static/css/main.0fce0988.css.map",
-    "main.5636e06a.js.map": "/traintris/static/js/main.5636e06a.js.map",
+    "main.36d928ec.css.map": "/traintris/static/css/main.36d928ec.css.map",
+    "main.e4440491.js.map": "/traintris/static/js/main.e4440491.js.map",
     "787.b73e4b0c.chunk.js.map": "/traintris/static/js/787.b73e4b0c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0fce0988.css",
-    "static/js/main.5636e06a.js"
+    "static/css/main.36d928ec.css",
+    "static/js/main.e4440491.js"
   ]
 }
