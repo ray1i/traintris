@@ -2,11 +2,17 @@ import { useRef, useEffect, useState } from "react"
 
 import { minoIndexes, blocksize } from "../../constants/minodata"
 
-import { minoType, BoardProps } from "../../types/types"
+import { Blocks, Mino, blockType, minoType } from "../../types/types"
 import { lowest, drawMino } from "../../scripts/util"
 
 import board from '../../img/board.png'
 import blocksheet from '../../img/blocksheet.png'
+
+export interface BoardProps {
+    blocks: Blocks,
+    currMino?: Mino,
+    setBlock?: (x: number, y: number, type: blockType) => void,
+}
 
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;

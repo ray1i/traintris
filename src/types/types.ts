@@ -13,12 +13,6 @@ export type blockType = minoType | 'G' | ''
 
 export type Blocks = blockType[][]
 
-export interface BoardProps {
-    blocks: Blocks,
-    currMino?: Mino,
-    setBlock?: (x: number, y: number, type: blockType) => void,
-}
-
 export interface PCFinderProps {
     blocks: Blocks,
     currMino?: minoType,
