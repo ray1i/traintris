@@ -241,7 +241,7 @@ function Game() {
         }, 1000 / 60)
 
         return () => clearInterval(interval);
-    }, [pressedKeys])
+    }, [pressedKeys]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
