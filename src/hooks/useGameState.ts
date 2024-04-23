@@ -85,7 +85,6 @@ export const useGameState = () => {
                 ]
                 const offsetMino = getMovedMino(rotatedMino, offset[0], offset[1])
 
-                console.log(!collide(blocks, offsetMino));
                 if (!collide(blocks, offsetMino)) {
                     setCurrMino(offsetMino);
                     return;
@@ -141,6 +140,17 @@ export const useGameState = () => {
         const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
         setCurrMino(newMino);
     }, [])
+
+    // Reset:
+    const reset = () => {
+        addToPastStates(getCurrentState());
+        clearFutureStates();
+
+        setBlocks(Array.from({ length: height }, () => Array(width).fill('')));
+        setHoldMino(undefined);
+        setQueueMinos(getShuffledQueue());
+        setCurrMino(getNewMino(popFromQueue(), spawnX, spawnY));
+    }
 
     // Undo/Redo:
     const getCurrentState = (): GameState => {
@@ -227,6 +237,7 @@ export const useGameState = () => {
         rotateCurrMino,
         swapHoldMino,
         placeCurrMino,
+        reset,
         undo,
         redo,
     }

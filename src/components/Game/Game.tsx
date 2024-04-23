@@ -31,6 +31,7 @@ function Game() {
         rotateCurrMino,
         swapHoldMino,
         placeCurrMino,
+        reset,
         undo,
         redo,
     } = useGameState();
@@ -93,6 +94,9 @@ function Game() {
                 case settings.hardDrop:
                     setPressedKeys({...pressedKeys, hardDrop: true});
                     break;
+                case settings.reset:
+                    setPressedKeys({...pressedKeys, reset: true});
+                    break;
             }
         }
     }
@@ -130,6 +134,9 @@ function Game() {
                 break;
             case settings.hardDrop:
                 setPressedKeys({...pressedKeys, hardDrop: false});
+                break;
+            case settings.reset:
+                setPressedKeys({...pressedKeys, reset: false});
                 break;
         }
     }
@@ -191,7 +198,6 @@ function Game() {
         if (pressedKeys.hold) {
             swapHoldMino();
             newPressedKeys.hold = false;
-
         }
 
         if (pressedKeys.softDrop) {
@@ -215,7 +221,7 @@ function Game() {
         }
 
         if (pressedKeys.reset) {
-            // TODO
+            reset();
             newPressedKeys.reset = false;
         }
 
