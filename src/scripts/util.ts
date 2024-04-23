@@ -2,7 +2,7 @@ import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
 
 import { Mino, minoType, Blocks } from "../types/types";
 
-import blocksheet from '../img/blocksheet.png'
+// import * as blocksheet from "../img/blocksheet.png";
 
 export const collide = (b: Blocks, m: Mino): boolean => {
 
@@ -65,7 +65,7 @@ export const lowest = (b: Blocks, m: Mino): Mino => {
 
 export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
     const blocksheetSprite = new Image();
-    blocksheetSprite.src = blocksheet;
+    blocksheetSprite.src = require("../img/blocksheet.png");
 
     const heightOffset = ctx.canvas.height / blocksize - 1; 
 
