@@ -1,7 +1,5 @@
 import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
-
 import { Mino, minoType, Blocks } from "../types/types";
-
 import blocksheet from '../img/blocksheet.png'
 
 export const collide = (b: Blocks, m: Mino): boolean => {
@@ -117,6 +115,18 @@ export const getMinoHeight = (m: Mino): number => {
         }
     })
     return seen.length;
+}
+
+export const getBlocksFromString = (s: string): Blocks => {
+    const blockTypesArray = ['I', 'O', 'T', 'L', 'J', 'Z', 'S', 'G'];
+    const lines = s.split('\n').reverse();
+    const maxWidth = lines.reduce((prev, curr)=> prev.length > curr.length ? prev : curr).length;
+
+    return lines.map(line => {
+        let result = line.split('').map(c => blockTypesArray.includes(c.toUpperCase()) ? c.toUpperCase() : '');
+        while (result.length < maxWidth) result.push('');
+        return result;
+    }) as Blocks;
 }
 
 export const getBoardWithPlacedMinos = (b: Blocks, minos: Mino[]): Blocks => {

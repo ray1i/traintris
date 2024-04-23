@@ -5,33 +5,8 @@
 // ctx.addEventListener("message", (event) => console.log(event));
 
 import { minoTypes, srsOffsets } from '../constants/minodata'
-import { getBoardWithPlacedMinos } from './util';
-
-type minoType = 'I' | 'O' | 'T' | 'L' | 'J' | 'Z' | 'S';
-
-interface Mino {
-    blocks: [number, number][],
-    type: minoType;
-    perm: number;
-    ox: number,
-    oy: number,
-}
-
-type blockType = minoType | 'G' | ''
-
-type Blocks = blockType[][]
-
-const getNewMino = (type: minoType, ox = 0, oy = 0): Mino => {
-    let blocks = minoTypes[type].map(block => [ox + block[0], oy + block[1]] as [number, number]);
-
-    return {
-        blocks: blocks,
-        type: type,
-        perm: 0,
-        ox: ox,
-        oy: oy
-    }
-}
+import { getNewMino, getBoardWithPlacedMinos } from './util';
+import { minoType, Mino, blockType, Blocks } from '../types/types';
 
 const getMovedMino = (m: Mino, x: number, y: number) : Mino => {
     const newBlocks = m.blocks.map(block => [block[0] + x, block[1] + y] as [number, number])
@@ -110,8 +85,7 @@ onmessage = (msg: MessageEvent) => {
 
     if (state.hold != null) {
         new_hold = state.hold; 
-    }
-    else {
+    } else {
         new_hold = new_queue.shift();
     }
 
@@ -143,7 +117,7 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     let result = [] as Mino[][];
 
     for (let h = 1; h < 5; h++){
-        if (is_pcable(b, queue, h)){
+        if (is_pcable(b, [hold, ...queue], h)){
             // console.log(`searching for ${h}-height pcs...`)
             result = [...result, ...getAllPCsByHeight(b, queue, hold, h)]; 
         }
@@ -295,7 +269,7 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
     interface State {
         blocks: Blocks,
         queue: minoType[],
-        hold: minoType,
+        hold: minoType | null,
         history: Mino[],
     }
 
@@ -332,24 +306,27 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
                 // seen_boards.push(JSON.stringify([queue[0], ...new_b.blocks]))
 
                 // current mino as next
-                for (let m of get_all_lowest(new_b, currState.queue[0], currState.blocks.length)) {
-                    searchQueue.push({
-                        blocks: new_b,
-                        queue: currState.queue.slice(1),
-                        hold: currState.hold,
-                        history: [...currState.history, m]
-                    })
+                if (currState.queue.length > 0) {
+                    for (let m of get_all_lowest(new_b, currState.queue[0], currState.blocks.length)) {
+                        searchQueue.push({
+                            blocks: new_b,
+                            queue: currState.queue.slice(1),
+                            hold: currState.hold,
+                            history: [...currState.history, m]
+                        })
+                    }
                 }
 
                 // hold mino as next
-                for (let m of get_all_lowest(new_b, currState.hold, currState.blocks.length)) {
-                    searchQueue.push({
-                        blocks: new_b,
-                        queue: currState.queue.slice(1),
-                        hold: currState.queue[0],
-                        history: [...currState.history, m]
-                    })
-
+                if (currState.hold != null) {
+                    for (let m of get_all_lowest(new_b, currState.hold, currState.blocks.length)) {
+                        searchQueue.push({
+                            blocks: new_b,
+                            queue: currState.queue.slice(1),
+                            hold: currState.queue[0],
+                            history: [...currState.history, m]
+                        })
+                    }
                 }
             }
         }
@@ -383,4 +360,4 @@ function eliminate_duplicate_solutions(b: Blocks, sols: Mino[][]): Mino[][] {
     return new_sols;
 }
 
-export {}
+export { getAllPCs }
