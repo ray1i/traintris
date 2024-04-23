@@ -2,8 +2,6 @@ import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
 
 import { Mino, minoType, Blocks } from "../types/types";
 
-// import * as blocksheet from "../img/blocksheet.png";
-
 export const collide = (b: Blocks, m: Mino): boolean => {
 
     for (let block of m.blocks) {
