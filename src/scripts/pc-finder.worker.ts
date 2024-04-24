@@ -4,34 +4,10 @@
 // // Respond to message from parent thread
 // ctx.addEventListener("message", (event) => console.log(event));
 
-import { minoTypes, srsOffsets } from '../constants/minodata'
-import { getNewMino, getBoardWithPlacedMinos } from './util';
+import { srsOffsets } from '../constants/minodata'
+import { getNewMino, getBoardWithPlacedMinos, getMovedMino, getRotatedMino } from './util';
 import { minoType, Mino, blockType, Blocks } from '../types/types';
-
-const getMovedMino = (m: Mino, x: number, y: number) : Mino => {
-    const newBlocks = m.blocks.map(block => [block[0] + x, block[1] + y] as [number, number])
-    return {
-        ...m,
-        blocks: newBlocks,
-        ox: m.ox + x,
-        oy: m.oy + y
-    }
-}
-
-const getRotatedMino = (m: Mino, n: number) : Mino => {
-    const numRotations = ((n % 4) + 4) % 4
-    let newBlocks = m.blocks;
-
-    for (let i = 0; i < numRotations; i++){
-        newBlocks = newBlocks.map((block => [(block[1] - m.oy) + m.ox, -(block[0] - m.ox) + m.oy] as [number, number]))
-    }
-
-    return {
-        ...m,
-        blocks: newBlocks,
-        perm: (m.perm + numRotations) % 4
-    }
-}
+import { containsState, insertState, newNode } from './board-search-tree';
 
 const collide = (b: Blocks, m: Mino): boolean => {
     for (let block of m.blocks) {
@@ -117,7 +93,7 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     let result = [] as Mino[][];
 
     for (let h = 1; h < 5; h++){
-        if (is_pcable(b, [hold, ...queue], h)){
+        if (isBoardPCable(b, [hold, ...queue], h)){
             // console.log(`searching for ${h}-height pcs...`)
             result = [...result, ...getAllPCsByHeight(b, queue, hold, h)]; 
         }
@@ -125,10 +101,10 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     
     return result;
 }
-
-function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if board is pc-able given queue
+// check if board is technically pc-able
+const isBoardPCable = (b: Blocks, queue: minoType[], height=4): boolean => {
     // check if board height is higher than pc height
-    for (let i = height; i < b.length; i++){        
+    for (let i = height; i < b.length; i++) {
         for (let block of b[i]){
             if (block) {
                 // console.log(`Board height is higher than ${height}!`)
@@ -139,7 +115,7 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     
     // check if number of empty spaces on board is divisible by 4
     let empty_blocks = 0;
-    for (let row of b){        
+    for (let row of b) {
         empty_blocks += row.reduce((acc, block) => acc += (block === '' ? 1 : 0), 0);
     }
     if (empty_blocks % 4 !== 0) {
@@ -147,8 +123,8 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
         return false;
     }
 
-    // check if queue length is long enough to pc
-    if (empty_blocks / 4 > queue.length) {
+    // check if queue length (+1 for hold) is long enough to pc
+    if (empty_blocks / 4 > queue.length + 1) {
         // console.log('Queue is not long enough!')
         return false;
     }
@@ -156,26 +132,26 @@ function is_pcable(b: Blocks, queue: minoType[], height=4): boolean{// check if 
     return true;
 }
 
-function is_lowest(b: Blocks, m: Mino){
+const isMinoLowest = (b: Blocks, m: Mino): boolean => {
     for (let block of m.blocks){
-        if (block[1] === 0){
+        if (block[1] === 0) {
             return true;
         } 
-        else if (b[block[1] - 1][block[0]]){
+        else if (b[block[1] - 1][block[0]]) {
             return true;
         }
     }
     return false;
 }
 
-function get_all_lowest(b: Blocks, type: minoType, height=4): Mino[] {
+const getAllLowestMinos = (b: Blocks, type: minoType, height=4): Mino[] => {
     let result = [];
 
     for (let perm = 0; perm < 4; perm++){
         for (let x = 0; x < 10; x++){
             for (let y = 0; y < height; y++){
                 const tempmino = getRotatedMino(getNewMino(type, x, y), perm);
-                if (!collide(b, tempmino) && is_lowest(b, tempmino) && is_reachable(b, tempmino, 0)){
+                if (!collide(b, tempmino) && isMinoLowest(b, tempmino) && isMinoPositionReachable(b, tempmino, 0)){
                     result.push(tempmino);
                 }
             }
@@ -186,24 +162,20 @@ function get_all_lowest(b: Blocks, type: minoType, height=4): Mino[] {
     return result;
 }
 
-function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
+const isMinoPositionReachable = (b: Blocks, m: Mino, iter=0): boolean => {
     // check if we've already done too much iterations of this, currently set to maximum 3 but can add more
-    if (iter > 4){
-        return false;
-    }
+    if (iter > 4) return false;
 
     // check if the mino is already collided with the board
     // this is collide() from main file, modified so blocks above board don't trigger collision
-    if (topless_collide(b, m)){
-        return false;
-    }
+    if (topless_collide(b, m)) return false;
 
     // check if it can just go straight up
     let can_go_up = true;
-    for (let block of m.blocks){
-        if (can_go_up){
-            for (let i = 0; i < b.length; i++){
-                if (b[block[1] + i]?.[block[0]]){
+    for (let block of m.blocks) {
+        if (can_go_up) {
+            for (let i = 0; i < b.length; i++) {
+                if (b[block[1] + i]?.[block[0]]) {
                     can_go_up = false;
                     break;
                 }
@@ -214,11 +186,12 @@ function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
     if (can_go_up) return true;
 
     // check each dir: up, left, right (no down)
-    if (is_reachable(b, getMovedMino(m, 0, 1), iter + 1) ||
-        is_reachable(b, getMovedMino(m, -1, 0), iter + 1) ||
-        is_reachable(b, getMovedMino(m, 1, 0), iter + 1)) {
+    if (isMinoPositionReachable(b, getMovedMino(m, 0, 1), iter + 1) ||
+        isMinoPositionReachable(b, getMovedMino(m, -1, 0), iter + 1) ||
+        isMinoPositionReachable(b, getMovedMino(m, 1, 0), iter + 1)) {
         return true;
     }
+
     // check each rotation, don't check if O piece
     else if (m.type !== 'O'){
         for (let rot = 1; rot < 4; rot++) {
@@ -249,7 +222,7 @@ function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
                         // check if the rotated old mino becomes the mino we want
                         if (!topless_collide(b, offsetMino)) {
                             if (offsetMino.ox === m.ox && offsetMino.oy === m.oy &&
-                                is_reachable(b, possibleOldMino, iter + 1)) {
+                                isMinoPositionReachable(b, possibleOldMino, iter + 1)) {
                                 return true;
                             } else {
                                 break;
@@ -265,7 +238,6 @@ function is_reachable(b: Blocks, m: Mino, iter=0): boolean {
 }
 
 function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height: number = 4): Mino[][] {
-
     interface State {
         blocks: Blocks,
         queue: minoType[],
@@ -280,53 +252,48 @@ function getAllPCsByHeight(b: Blocks, queue: minoType[], hold: minoType, height:
         history: []
     }];
     const result: Mino[][] = [];
+    const seenStates = newNode();
 
     while (searchQueue.length > 0) {
         const currState = searchQueue.shift()!;
         const new_b = currState.history.length > 0 ? 
-        setMultipleBlocks(
-            currState.blocks, 
-            currState.history[currState.history.length - 1].blocks, 
-            currState.history[currState.history.length - 1].type
-        ) :
-        JSON.parse(JSON.stringify(currState.blocks)) as Blocks;
+            setMultipleBlocks(
+                currState.blocks, 
+                currState.history[currState.history.length - 1].blocks, 
+                currState.history[currState.history.length - 1].type
+            ) :
+            JSON.parse(JSON.stringify(currState.blocks)) as Blocks;
 
         if (new_b.length === 0) {
             result.push(currState.history);
-
-            // if (result.length % 10 === 0) console.log(`found ${result.length} solutions...`);
+        } else if (currState.queue.length <= 0 && currState.hold === null) {
+            // pass
+        } else if (containsState(seenStates, new_b, currState.hold, currState.queue)) {
+            // pass
         } else {
-            if (currState.queue.length <= 0 && currState.hold === null) {
-                // pass
-            }
-            // else if (seen_boards.includes(JSON.stringify([queue[0], ...new_b.blocks]))){
-            //     // pass
-            // }
-            else {
-                // seen_boards.push(JSON.stringify([queue[0], ...new_b.blocks]))
+            insertState(seenStates, new_b, currState.hold, [...currState.queue]);
 
-                // current mino as next
-                if (currState.queue.length > 0) {
-                    for (let m of get_all_lowest(new_b, currState.queue[0], currState.blocks.length)) {
-                        searchQueue.push({
-                            blocks: new_b,
-                            queue: currState.queue.slice(1),
-                            hold: currState.hold,
-                            history: [...currState.history, m]
-                        })
-                    }
+            // current mino as next
+            if (currState.queue.length > 0) {
+                for (let m of getAllLowestMinos(new_b, currState.queue[0], currState.blocks.length)) {
+                    searchQueue.push({
+                        blocks: new_b,
+                        queue: currState.queue.slice(1),
+                        hold: currState.hold,
+                        history: [...currState.history, m]
+                    })
                 }
+            }
 
-                // hold mino as next
-                if (currState.hold != null) {
-                    for (let m of get_all_lowest(new_b, currState.hold, currState.blocks.length)) {
-                        searchQueue.push({
-                            blocks: new_b,
-                            queue: currState.queue.slice(1),
-                            hold: currState.queue[0],
-                            history: [...currState.history, m]
-                        })
-                    }
+            // hold mino as next
+            if (currState.hold != null) {
+                for (let m of getAllLowestMinos(new_b, currState.hold, currState.blocks.length)) {
+                    searchQueue.push({
+                        blocks: new_b,
+                        queue: currState.queue.slice(1),
+                        hold: currState.queue[0],
+                        history: [...currState.history, m]
+                    })
                 }
             }
         }
@@ -360,4 +327,4 @@ function eliminate_duplicate_solutions(b: Blocks, sols: Mino[][]): Mino[][] {
     return new_sols;
 }
 
-export { getAllPCs }
+export { getAllPCs } // for tests
