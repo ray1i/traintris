@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/traintris/static/css/main.36d928ec.css",
-    "main.js": "/traintris/static/js/main.e4440491.js",
-    "static/js/787.b73e4b0c.chunk.js": "/traintris/static/js/787.b73e4b0c.chunk.js",
-    "static/js/pc-finder.worker.4e19e784.worker.js": "/traintris/static/js/pc-finder.worker.4e19e784.worker.js",
+    "main.css": "/traintris/static/css/main.c7c68b07.css",
+    "main.js": "/traintris/static/js/main.fbdff6d5.js",
+    "static/js/488.e0e07b7f.chunk.js": "/traintris/static/js/488.e0e07b7f.chunk.js",
+    "static/js/pc-finder.worker.375fb0c7.worker.js": "/traintris/static/js/pc-finder.worker.375fb0c7.worker.js",
     "index.html": "/traintris/index.html",
-    "main.36d928ec.css.map": "/traintris/static/css/main.36d928ec.css.map",
-    "main.e4440491.js.map": "/traintris/static/js/main.e4440491.js.map",
-    "787.b73e4b0c.chunk.js.map": "/traintris/static/js/787.b73e4b0c.chunk.js.map"
+    "main.c7c68b07.css.map": "/traintris/static/css/main.c7c68b07.css.map",
+    "main.fbdff6d5.js.map": "/traintris/static/js/main.fbdff6d5.js.map",
+    "488.e0e07b7f.chunk.js.map": "/traintris/static/js/488.e0e07b7f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.36d928ec.css",
-    "static/js/main.e4440491.js"
+    "static/css/main.c7c68b07.css",
+    "static/js/main.fbdff6d5.js"
   ]
 }
