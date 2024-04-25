@@ -50,9 +50,7 @@ const setMultipleBlocks = (b: Blocks, blocklist: [number, number][], type: block
 }
 
 // when it gets input from the main file, run everything else.
-// state.data has b (2d Array of Chars), curr (Char), hold (Char), queue (Array of Chars)
 onmessage = (msg: MessageEvent) => {
-    console.log('message received');
     const state: {b: Blocks, hold: minoType, queue: minoType[]} = msg.data;
 
     // if hold exists, append current mino to beginning of queue, otherwise make current mino held
@@ -85,15 +83,13 @@ onmessage = (msg: MessageEvent) => {
     solutions = eliminate_duplicate_solutions(new_b, solutions);
 
     postMessage(solutions);
-
-    console.log('finished.')
 }
 
 function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     let result = [] as Mino[][];
 
     for (let h = 1; h < 5; h++){
-        if (isBoardPCable(b, [hold, ...queue], h)){
+        if (isBoardPCable(b, hold, queue, h)){
             // console.log(`searching for ${h}-height pcs...`)
             result = [...result, ...getAllPCsByHeight(b, queue, hold, h)]; 
         }
@@ -102,7 +98,7 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
     return result;
 }
 // check if board is technically pc-able
-const isBoardPCable = (b: Blocks, queue: minoType[], height=4): boolean => {
+const isBoardPCable = (b: Blocks, hold: minoType | null, queue: minoType[], height=4): boolean => {
     // check if board height is higher than pc height
     for (let i = height; i < b.length; i++) {
         for (let block of b[i]){
@@ -124,7 +120,7 @@ const isBoardPCable = (b: Blocks, queue: minoType[], height=4): boolean => {
     }
 
     // check if queue length (+1 for hold) is long enough to pc
-    if (empty_blocks / 4 > queue.length + 1) {
+    if (empty_blocks / 4 > queue.length + (hold ? 1 : 0)) {
         // console.log('Queue is not long enough!')
         return false;
     }
