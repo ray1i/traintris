@@ -139,7 +139,7 @@ export const useGameState = () => {
     useEffect(() => {
         const newMino = getNewMino(popFromQueue(), spawnX, spawnY);
         setCurrMino(newMino);
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Reset:
     const reset = () => {
