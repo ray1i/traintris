@@ -98,7 +98,11 @@ onmessage = (msg: MessageEvent) => {
   postMessage(solutions);
 };
 
-function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
+export function getAllPCs(
+  b: Blocks,
+  queue: minoType[],
+  hold: minoType
+): Mino[][] {
   let result = [] as Mino[][];
 
   for (let h = 1; h < 5; h++) {
@@ -110,6 +114,7 @@ function getAllPCs(b: Blocks, queue: minoType[], hold: minoType): Mino[][] {
 
   return result;
 }
+
 // check if board is technically pc-able
 const isBoardPCable = (
   b: Blocks,
@@ -275,13 +280,11 @@ const isMinoPositionReachable = (b: Blocks, m: Mino, iter = 0): boolean => {
 function getAllPCsByHeight(
   b: Blocks,
   queue: minoType[],
-  hold: minoType,
   height: number = 4
 ): Mino[][] {
   interface State {
     blocks: Blocks;
     queue: minoType[];
-    hold: minoType | null;
     history: Mino[];
   }
 
@@ -289,7 +292,6 @@ function getAllPCsByHeight(
     {
       blocks: b,
       queue: queue,
-      hold: hold,
       history: [],
     },
   ];
@@ -355,6 +357,33 @@ function getAllPCsByHeight(
   return result;
 }
 
+export function getAllQueues(queue: minoType[]) {
+  if (queue.length === 0 || queue.length === 1) return [queue];
+  if (queue.length === 10) throw new Error("Queue too long. Max 10 minos.");
+  const result = [] as minoType[][];
+
+  // silly
+  for (let i = 0; i < Math.pow(2, queue.length - 1); i++) {
+    const subResult = [] as minoType[];
+    let hold = queue[0];
+    let head = 1;
+    for (let j = 0; j < queue.length - 1; j++) {
+      if (i & (1 << j)) {
+        subResult.push(hold);
+        hold = queue[head];
+        head++;
+      } else {
+        subResult.push(queue[head]);
+        head++;
+      }
+    }
+    subResult.push(hold);
+    result.push(subResult);
+  }
+
+  return result;
+}
+
 function eliminate_duplicate_solutions(b: Blocks, sols: Mino[][]): Mino[][] {
   let new_sols = [];
   let seen = [];
@@ -378,5 +407,3 @@ function eliminate_duplicate_solutions(b: Blocks, sols: Mino[][]): Mino[][] {
 
   return new_sols;
 }
-
-export { getAllPCs }; // for tests

@@ -1,6 +1,6 @@
-import { getAllPCs } from "./pc-finder.worker";
+import { getAllPCs, getAllQueues } from "./pc-finder.worker";
 import { getBlocksFromString } from "./util";
-import { minoType, Blocks } from "../types/types";
+import { Blocks } from "../types/types";
 
 describe("getAllPCs", () => {
   test("Return solution to PCO with queue ZSJ", () => {
@@ -34,5 +34,21 @@ describe("getAllPCs", () => {
     expect(
       getAllPCs(blocks, ["O", "T", "J", "S", "O"], "L").length
     ).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("getAllQueues", () => {
+  test("Empty input should return empty", () => {
+    expect(getAllQueues([])).toEqual([[]]);
+  });
+  test("One mino should return that mino", () => {
+    expect(getAllQueues(["I"])).toEqual([["I"]]);
+  });
+  test("Two minos should return two permutations", () => {
+    const result = getAllQueues(["Z", "S"]);
+    expect(result).toContainEqual(["Z", "S"]);
+    expect(result).toContainEqual(["S", "Z"]);
+    expect(result.length).toEqual(2);
+    // expect(getAllQueues(["Z", "S"])).toContainEqual
   });
 });
