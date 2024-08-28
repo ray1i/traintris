@@ -12,7 +12,6 @@ import {
   getRotatedMino,
 } from "./util";
 import { minoType, Mino, blockType, Blocks } from "../types/types";
-import { containsState, insertState, newNode } from "./board-search-tree";
 
 const collide = (b: Blocks, m: Mino): boolean => {
   for (let block of m.blocks) {
@@ -90,7 +89,7 @@ onmessage = (msg: MessageEvent) => {
   if (!new_hold || stackHeight === 0) {
     solutions = [];
   } else {
-    solutions = getAllPCs(new_b, new_queue, new_hold);
+    solutions = getAllPCs(new_b, new_queue);
   }
 
   solutions = eliminate_duplicate_solutions(new_b, solutions);
@@ -101,14 +100,13 @@ onmessage = (msg: MessageEvent) => {
 export function getAllPCs(
   b: Blocks,
   queue: minoType[],
-  hold: minoType
 ): Mino[][] {
   let result = [] as Mino[][];
 
   for (let h = 1; h < 5; h++) {
-    if (isBoardPCable(b, hold, queue, h)) {
+    if (isBoardPCable(b, queue, h)) {
       // console.log(`searching for ${h}-height pcs...`)
-      result = [...result, ...getAllPCsByHeight(b, queue, hold, h)];
+      result = [...result, ...getAllPCsByHeight(b, queue, h)];
     }
   }
 
@@ -118,7 +116,6 @@ export function getAllPCs(
 // check if board is technically pc-able
 const isBoardPCable = (
   b: Blocks,
-  hold: minoType | null,
   queue: minoType[],
   height = 4
 ): boolean => {
@@ -133,20 +130,19 @@ const isBoardPCable = (
   }
 
   // check if number of empty spaces on board is divisible by 4
-  let empty_blocks = 0;
-  for (let row of b) {
-    empty_blocks += row.reduce(
-      (acc, block) => (acc += block === "" ? 1 : 0),
-      0
-    );
-  }
+  const empty_blocks = b.reduce((total, row) => 
+     row.reduce(
+      (rowTotal, block) => (rowTotal += block === "" ? 1 : 0),
+      total
+    )
+  , 0)
   if (empty_blocks % 4 !== 0) {
     // console.log('Remaining space is not divisible by 4!')
     return false;
   }
 
   // check if queue length (+1 for hold) is long enough to pc
-  if (empty_blocks / 4 > queue.length + (hold ? 1 : 0)) {
+  if (empty_blocks / 4 > queue.length) {
     // console.log('Queue is not long enough!')
     return false;
   }
@@ -288,15 +284,18 @@ function getAllPCsByHeight(
     history: Mino[];
   }
 
-  const searchQueue: State[] = [
-    {
-      blocks: b,
-      queue: queue,
-      history: [],
-    },
-  ];
+  const searchQueue: State[] = getAllQueues(queue).map((q) => ({
+    blocks: JSON.parse(JSON.stringify(b)),
+    queue: q,
+    history: [],
+  })) as State[];
+
   const result: Mino[][] = [];
-  const seenStates = newNode();
+
+  // key is the shape of the board
+  // value is the queues
+  // make them strings to make comparisons easier
+  const seenStates = {} as Record<string, string[]>;
 
   while (searchQueue.length > 0) {
     const currState = searchQueue.shift()!;
@@ -309,47 +308,27 @@ function getAllPCsByHeight(
           )
         : (JSON.parse(JSON.stringify(currState.blocks)) as Blocks);
 
+    const new_b_string = new_b.map((row) => row.map(r => r === '' ? ' ' : 'X').join("")).join("\n");
+
     if (new_b.length === 0) {
       result.push(currState.history);
-    } else if (currState.queue.length <= 0 && currState.hold === null) {
+    } else if (currState.queue.length <= 0) {
       // pass
-    } else if (
-      containsState(seenStates, new_b, currState.hold, currState.queue)
-    ) {
+    } else if (seenStates[new_b_string]?.includes(currState.queue.join(""))) {
       // pass
     } else {
-      insertState(seenStates, new_b, currState.hold, [...currState.queue]);
+      seenStates[new_b_string] = [...(seenStates[new_b_string] ?? []), currState.queue.join("")];
 
-      // current mino as next
-      if (currState.queue.length > 0) {
-        for (let m of getAllLowestMinos(
-          new_b,
-          currState.queue[0],
-          currState.blocks.length
-        )) {
-          searchQueue.push({
-            blocks: new_b,
-            queue: currState.queue.slice(1),
-            hold: currState.hold,
-            history: [...currState.history, m],
-          });
-        }
-      }
-
-      // hold mino as next
-      if (currState.hold != null) {
-        for (let m of getAllLowestMinos(
-          new_b,
-          currState.hold,
-          currState.blocks.length
-        )) {
-          searchQueue.push({
-            blocks: new_b,
-            queue: currState.queue.slice(1),
-            hold: currState.queue[0],
-            history: [...currState.history, m],
-          });
-        }
+      for (let m of getAllLowestMinos(
+        new_b,
+        currState.queue[0],
+        currState.blocks.length
+      )) {
+        searchQueue.push({
+          blocks: new_b,
+          queue: currState.queue.slice(1),
+          history: [...currState.history, m],
+        });
       }
     }
   }

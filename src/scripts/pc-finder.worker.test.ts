@@ -11,7 +11,7 @@ describe("getAllPCs", () => {
         "GGGG  GGGG\n" + 
         "GGGG   GGG"
     const blocks: Blocks = getBlocksFromString(testBoard);
-    expect(getAllPCs(blocks, ["Z", "S"], "J").length).toBeGreaterThanOrEqual(1);
+    expect(getAllPCs(blocks, ["J", "Z", "S"]).length).toBeGreaterThanOrEqual(1);
   });
   test("Return nothing to PCO with queue ZSL", () => {
     // prettier-ignore
@@ -21,7 +21,7 @@ describe("getAllPCs", () => {
         "GGGG  GGGG\n" + 
         "GGGG   GGG"
     const blocks: Blocks = getBlocksFromString(testBoard);
-    expect(getAllPCs(blocks, ["Z", "S"], "L").length).toEqual(0);
+    expect(getAllPCs(blocks, ["L", "Z", "S"]).length).toEqual(0);
   });
   test("Return solution to jaws with queue ZSJ", () => {
     // prettier-ignore
@@ -32,7 +32,7 @@ describe("getAllPCs", () => {
         "IZSS      "
     const blocks: Blocks = getBlocksFromString(testBoard);
     expect(
-      getAllPCs(blocks, ["O", "T", "J", "S", "O"], "L").length
+      getAllPCs(blocks, ["L", "O", "T", "J", "S", "O"]).length
     ).toBeGreaterThanOrEqual(1);
   });
 });
