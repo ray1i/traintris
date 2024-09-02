@@ -3,7 +3,47 @@ import { getBlocksFromString } from "./util";
 import { Blocks } from "../types/types";
 
 describe("getAllPCs", () => {
-  test("Return solution to PCO with queue ZSJ", () => {
+  test("Finds the quad", () => {
+    // prettier-ignore
+    const testBoard = 
+        "GGGGGG GGG\n" + 
+        "GGGGGG GGG\n" + 
+        "GGGGGG GGG\n" + 
+        "GGGGGG GGG";
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(getAllPCs(blocks, ["I"]).length).toEqual(1);
+  });
+  test("Spins J into slot", () => {
+    // prettier-ignore
+    const testBoard = 
+        "          \n" + 
+        "          \n" + 
+        " GGGGGGGGG\n" + 
+        "   GGGGGGG"
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(getAllPCs(blocks, ["J"]).length).toEqual(1);
+  });
+  test("Doesn't 180 J when not possible", () => {
+    // prettier-ignore
+    const testBoard = 
+        "          \n" + 
+        "GGGGGGGGG \n" + 
+        "GGGGGGGGG \n" + 
+        "GGGGGGGG  "
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(getAllPCs(blocks, ["J"]).length).toEqual(0);
+  });
+  test("Spins Z into slot", () => {
+    // prettier-ignore
+    const testBoard = 
+        "          \n" + 
+        "          \n" + 
+        "  GGGGGGGG\n" + 
+        "G  GGGGGGG"
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(getAllPCs(blocks, ["Z"]).length).toEqual(1);
+  });
+  test("Returns solution to PCO with queue ZSJ", () => {
     // prettier-ignore
     const testBoard = 
         "GGGG    GG\n" + 
@@ -13,7 +53,7 @@ describe("getAllPCs", () => {
     const blocks: Blocks = getBlocksFromString(testBoard);
     expect(getAllPCs(blocks, ["J", "Z", "S"]).length).toBeGreaterThanOrEqual(1);
   });
-  test("Return nothing to PCO with queue ZSL", () => {
+  test("Returns nothing to PCO with queue ZSL", () => {
     // prettier-ignore
     const testBoard = 
         "GGGG    GG\n" + 
@@ -23,7 +63,7 @@ describe("getAllPCs", () => {
     const blocks: Blocks = getBlocksFromString(testBoard);
     expect(getAllPCs(blocks, ["L", "Z", "S"]).length).toEqual(0);
   });
-  test("Return solution to jaws with queue ZSJ", () => {
+  test("Returns solution to jaws with queue LOTJSO", () => {
     // prettier-ignore
     const testBoard = 
         "ILLL      \n" + 
@@ -33,7 +73,29 @@ describe("getAllPCs", () => {
     const blocks: Blocks = getBlocksFromString(testBoard);
     expect(
       getAllPCs(blocks, ["L", "O", "T", "J", "S", "O"]).length
-    ).toBeGreaterThanOrEqual(1);
+    ).toEqual(2);
+  });
+  test("Returns solution to half-PCO with queue LZJZOZT", () => {
+    // prettier-ignore
+    const testBoard = 
+        "         I\n" + 
+        "T        I\n" + 
+        "TTSS   OOI\n" + 
+        "TSS    OOI"
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(
+      getAllPCs(blocks, ["L", "Z", "J", "S", "O", "Z", "T"]).length
+    ).toEqual(3);
+  });
+  test("Returns correct number of solutions to 3x4 box with queue LTJ", () => {
+    // prettier-ignore
+    const testBoard = 
+        "GGGG   GGG\n" + 
+        "GGGG   GGG\n" + 
+        "GGGG   GGG\n" + 
+        "GGGG   GGG"
+    const blocks: Blocks = getBlocksFromString(testBoard);
+    expect(getAllPCs(blocks, ["L", "T", "J"]).length).toBeGreaterThanOrEqual(6);
   });
 });
 

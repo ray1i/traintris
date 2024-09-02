@@ -1,4 +1,9 @@
-import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
+import {
+  minoTypes,
+  minoIndexes,
+  blocksize,
+  srsOffsets,
+} from "../constants/minodata";
 import { Mino, minoType, Blocks } from "../types/types";
 import blocksheet from "../img/blocksheet.png";
 
@@ -11,8 +16,19 @@ export const collide = (b: Blocks, m: Mino): boolean => {
   return false;
 };
 
+export const topless_collide = (b: Blocks, m: Mino): boolean => {
+  // collide that doesn't trigger on top undefined
+  for (let block of m.blocks) {
+    if (block[1] >= b.length && 0 <= block[0] && block[0] < 10) {
+    } else if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export const getNewMino = (type: minoType, ox = 0, oy = 0): Mino => {
-  let blocks = minoTypes[type].map(
+  const blocks = minoTypes[type].map(
     (block) => [ox + block[0], oy + block[1]] as [number, number]
   );
 
@@ -53,6 +69,28 @@ export const getRotatedMino = (m: Mino, n: number): Mino => {
     blocks: newBlocks,
     perm: (m.perm + numRotations) % 4,
   };
+};
+
+// this will give the mino as if it were rotated on the actual board.
+// if there are no valid spots, it remains unrotated.
+export const getRotatedMinoWithSRS = (b: Blocks, m: Mino, n: number): Mino => {
+  const currOffset = srsOffsets[m.type];
+  const rotatedMino = getRotatedMino(m, n);
+
+  for (let i = 0; i < currOffset[m.perm].length; i++) {
+    const offset = [
+      currOffset[m.perm][i][0] - currOffset[rotatedMino.perm][i][0],
+      currOffset[m.perm][i][1] - currOffset[rotatedMino.perm][i][1],
+    ];
+    const offsetMino = getMovedMino(rotatedMino, offset[0], offset[1]);
+
+    if (!topless_collide(b, offsetMino)) {
+      return offsetMino;
+    }
+  }
+
+  // there were no valid spots
+  return m;
 };
 
 export const lowest = (b: Blocks, m: Mino): Mino => {

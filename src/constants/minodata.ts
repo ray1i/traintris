@@ -18,8 +18,7 @@ export const minoTypes = {
 
     "S": [         [ 0, 1], [ 1, 1], 
           [-1, 0], [ 0, 0]],
-};
-
+} as const;
 
 // SRS
 export const srsOffsets = {
@@ -65,7 +64,7 @@ export const srsOffsets = {
         [[ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0], [ 0, 0]],
         [[ 0, 0], [-1, 0], [-1,-1], [ 0,+2], [-1,+2]]
     ],
-};
+} as const;
 
 // used for blocksheet:
 // enum minoIndexes {
@@ -87,6 +86,6 @@ export const minoIndexes = {
     'Z': 5,
     'S': 6,
     'G': 7
-};
+} as const;
 
 export const blocksize = 32;

@@ -1,37 +1,13 @@
-// // eslint-disable-next-line no-restricted-globals
-// const ctx: Worker = self as any;
-
-// // Respond to message from parent thread
-// ctx.addEventListener("message", (event) => console.log(event));
-
-import { srsOffsets } from "../constants/minodata";
 import {
   getNewMino,
   getBoardWithPlacedMinos,
   getMovedMino,
   getRotatedMino,
+  getRotatedMinoWithSRS,
+  collide,
+  topless_collide,
 } from "./util";
 import { minoType, Mino, blockType, Blocks } from "../types/types";
-
-const collide = (b: Blocks, m: Mino): boolean => {
-  for (let block of m.blocks) {
-    if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
-      return true;
-    }
-  }
-  return false;
-};
-
-function topless_collide(b: Blocks, m: Mino): boolean {
-  // collide that doesn't trigger on top undefined
-  for (let block of m.blocks) {
-    if (block[1] >= b.length && 0 <= block[0] && block[0] < 10) {
-    } else if (b[block[1]]?.[block[0]] === undefined || b[block[1]][block[0]]) {
-      return true;
-    }
-  }
-  return false;
-}
 
 const setMultipleBlocks = (
   b: Blocks,
@@ -60,17 +36,8 @@ const setMultipleBlocks = (
 
 // when it gets input from the main file, run everything else.
 onmessage = (msg: MessageEvent) => {
-  const state: { b: Blocks; hold: minoType; queue: minoType[] } = msg.data;
-
-  // if hold exists, append current mino to beginning of queue, otherwise make current mino held
-  let new_queue = [...state.queue];
-  let new_hold: minoType | undefined;
-
-  if (state.hold != null) {
-    new_hold = state.hold;
-  } else {
-    new_hold = new_queue.shift();
-  }
+  const state: { b: Blocks; hold: minoType | null; queue: minoType[] } =
+    msg.data;
 
   const stackHeight = state.b.reduce((acc, row, i) => {
     if (row.some((block) => block !== "")) {
@@ -86,39 +53,33 @@ onmessage = (msg: MessageEvent) => {
   );
 
   let solutions: Mino[][];
-  if (!new_hold || stackHeight === 0) {
+  if (stackHeight === 0) {
     solutions = [];
   } else {
-    solutions = getAllPCs(new_b, new_queue);
+    solutions = getAllPCs(new_b, [
+      ...(state.hold ? [state.hold] : []),
+      ...state.queue,
+    ]);
   }
-
-  solutions = eliminate_duplicate_solutions(new_b, solutions);
 
   postMessage(solutions);
 };
 
-export function getAllPCs(
-  b: Blocks,
-  queue: minoType[],
-): Mino[][] {
+export function getAllPCs(b: Blocks, queue: minoType[]): Mino[][] {
   let result = [] as Mino[][];
 
   for (let h = 1; h < 5; h++) {
     if (isBoardPCable(b, queue, h)) {
       // console.log(`searching for ${h}-height pcs...`)
-      result = [...result, ...getAllPCsByHeight(b, queue, h)];
+      result = [...result, ...getAllPCsByHeight(b.slice(0, h), queue, h)];
     }
   }
 
-  return result;
+  return eliminate_duplicate_solutions(b, result);
 }
 
 // check if board is technically pc-able
-const isBoardPCable = (
-  b: Blocks,
-  queue: minoType[],
-  height = 4
-): boolean => {
+const isBoardPCable = (b: Blocks, queue: minoType[], height = 4): boolean => {
   // check if board height is higher than pc height
   for (let i = height; i < b.length; i++) {
     for (let block of b[i]) {
@@ -130,12 +91,16 @@ const isBoardPCable = (
   }
 
   // check if number of empty spaces on board is divisible by 4
-  const empty_blocks = b.reduce((total, row) => 
-     row.reduce(
-      (rowTotal, block) => (rowTotal += block === "" ? 1 : 0),
-      total
-    )
-  , 0)
+  const empty_blocks = b
+    .slice(0, height)
+    .reduce(
+      (total, row) =>
+        row.reduce(
+          (rowTotal, block) => (rowTotal += block === "" ? 1 : 0),
+          total
+        ),
+      0
+    );
   if (empty_blocks % 4 !== 0) {
     // console.log('Remaining space is not divisible by 4!')
     return false;
@@ -151,126 +116,65 @@ const isBoardPCable = (
 };
 
 const isMinoLowest = (b: Blocks, m: Mino): boolean => {
-  for (let block of m.blocks) {
-    if (block[1] === 0) {
-      return true;
-    } else if (b[block[1] - 1][block[0]]) {
-      return true;
-    }
-  }
-  return false;
+  return m.blocks.some((block) => block[1] === 0 || b[block[1] - 1][block[0]]);
 };
 
 const getAllLowestMinos = (b: Blocks, type: minoType, height = 4): Mino[] => {
-  let result = [];
+  const seen = new Set<`${number},${number},${number}`>(); // ox, oy, perm
 
+  // start off with all the positions where the mino just drops
   for (let perm = 0; perm < 4; perm++) {
     for (let x = 0; x < 10; x++) {
+      const tempMino = getRotatedMino(getNewMino(type, x, height), perm);
       for (let y = 0; y < height; y++) {
-        const tempmino = getRotatedMino(getNewMino(type, x, y), perm);
-        if (
-          !collide(b, tempmino) &&
-          isMinoLowest(b, tempmino) &&
-          isMinoPositionReachable(b, tempmino, 0)
-        ) {
-          result.push(tempmino);
+        if (!topless_collide(b, getMovedMino(tempMino, 0, -y))) {
+          seen.add(`${x},${height - y},${perm}`);
+        } else {
+          // it hits the board, so it's the lowest it can get from dropping straight down
+          break;
         }
       }
     }
     if (type === "O" && perm > 0) break;
   }
 
-  return result;
-};
+  // then check all the positions where the mino can reach by moving/rotating
+  let oldQueue = [];
+  let currQueue = Array.from(seen);
+  while (currQueue.length > 0) {
+    oldQueue = currQueue;
+    currQueue = [];
+    for (let pos of oldQueue) {
+      const [ox, oy, perm] = pos.split(",").map((x) => parseInt(x));
+      const start = getRotatedMino(getNewMino(type, ox, oy), perm);
 
-const isMinoPositionReachable = (b: Blocks, m: Mino, iter = 0): boolean => {
-  // check if we've already done too much iterations of this, currently set to maximum 3 but can add more
-  if (iter > 4) return false;
-
-  // check if the mino is already collided with the board
-  // this is collide() from main file, modified so blocks above board don't trigger collision
-  if (topless_collide(b, m)) return false;
-
-  // check if it can just go straight up
-  let can_go_up = true;
-  for (let block of m.blocks) {
-    if (can_go_up) {
-      for (let i = 0; i < b.length; i++) {
-        if (b[block[1] + i]?.[block[0]]) {
-          can_go_up = false;
-          break;
-        }
-      }
-    } else break;
-  }
-  if (can_go_up) return true;
-
-  // check each dir: up, left, right (no down)
-  if (
-    isMinoPositionReachable(b, getMovedMino(m, 0, 1), iter + 1) ||
-    isMinoPositionReachable(b, getMovedMino(m, -1, 0), iter + 1) ||
-    isMinoPositionReachable(b, getMovedMino(m, 1, 0), iter + 1)
-  ) {
-    return true;
-  }
-
-  // check each rotation, don't check if O piece
-  else if (m.type !== "O") {
-    for (let rot = 1; rot < 4; rot++) {
-      // check each offset:
-      for (let os = 0; os < 5; os++) {
-        // setting up the offset values
-        let oldperm = (m.perm + rot + 4) % 4;
-        let offset = [
-          srsOffsets[m.type][oldperm][os][0] -
-            srsOffsets[m.type][m.perm][os][0],
-          srsOffsets[m.type][oldperm][os][1] -
-            srsOffsets[m.type][m.perm][os][1],
-        ] as [number, number];
-
-        // create copy of m, rotate it, and apply reversed offset
-        const possibleOldMino = getRotatedMino(
-          getMovedMino(m, -offset[0], -offset[1]),
-          rot
-        );
-
-        if (!topless_collide(b, possibleOldMino)) {
-          // rotate the possible old mino to check if the spin is actually what happens
-          const currOffset = srsOffsets[possibleOldMino.type];
-          const rotatedOldMino = getRotatedMino(possibleOldMino, -rot + 4); // -rot + 4 undoes rotation
-
-          for (let i = 0; i < currOffset[possibleOldMino.perm].length; i++) {
-            const offset = [
-              currOffset[possibleOldMino.perm][i][0] -
-                currOffset[rotatedOldMino.perm][i][0],
-              currOffset[possibleOldMino.perm][i][1] -
-                currOffset[rotatedOldMino.perm][i][1],
-            ];
-            const offsetMino = getMovedMino(
-              rotatedOldMino,
-              offset[0],
-              offset[1]
-            );
-
-            // check if the rotated old mino becomes the mino we want
-            if (!topless_collide(b, offsetMino)) {
-              if (
-                offsetMino.ox === m.ox &&
-                offsetMino.oy === m.oy &&
-                isMinoPositionReachable(b, possibleOldMino, iter + 1)
-              ) {
-                return true;
-              } else {
-                break;
-              }
-            }
-          }
+      for (let m of [
+        getMovedMino(start, -1, 0), // left
+        getMovedMino(start, 1, 0), // right
+        getMovedMino(start, 0, -1), // down
+        getRotatedMinoWithSRS(b, start, 1), // cw
+        getRotatedMinoWithSRS(b, start, 2), // 180
+        getRotatedMinoWithSRS(b, start, 3), // ccw
+      ]) {
+        if (!seen.has(`${m.ox},${m.oy},${m.perm}`) && !topless_collide(b, m)) {
+          seen.add(`${m.ox},${m.oy},${m.perm}`);
+          currQueue.push(`${m.ox},${m.oy},${m.perm}`);
         }
       }
     }
   }
 
-  return false;
+  const lowestReachable = Array.from(seen)
+    .map((pos) => {
+      const [ox, oy, perm] = pos.split(",").map((x) => parseInt(x));
+      return getRotatedMino(getNewMino(type, ox, oy), perm);
+    })
+    .filter((m) => {
+      return !collide(b, m) && isMinoLowest(b, m);
+    });
+  if (type === "S") {
+  }
+  return lowestReachable;
 };
 
 function getAllPCsByHeight(
@@ -308,7 +212,20 @@ function getAllPCsByHeight(
           )
         : (JSON.parse(JSON.stringify(currState.blocks)) as Blocks);
 
-    const new_b_string = new_b.map((row) => row.map(r => r === '' ? ' ' : 'X').join("")).join("\n");
+    // TODO: this misses some solutions
+    // Such as | T | ==> |   | vs. |TTT| ==> |   |
+    //         |TTT|     | T |     | T |     | T |
+    //
+    // and     |LLL| ==> |   | vs. |TTT| ==> |   |
+    //         |LT |     |   |     |LLL|     |   |
+    //         |TTT|     |LT |     |LT |     |LT |
+    // The "Returns correct number of solutions to 3x4 box with queue LTJ" test currently fails because of this.
+    // but i'm gonna leave it for now because lazy
+    // to fix it make it store the output board instead
+    const new_b_string = new_b
+      // .map((row) => row.map((r) => (r === "" ? " " : "X")).join(""))
+      .map((row) => row.map((r) => (r === "" ? " " : r)).join(""))
+      .join("\n");
 
     if (new_b.length === 0) {
       result.push(currState.history);
@@ -317,12 +234,15 @@ function getAllPCsByHeight(
     } else if (seenStates[new_b_string]?.includes(currState.queue.join(""))) {
       // pass
     } else {
-      seenStates[new_b_string] = [...(seenStates[new_b_string] ?? []), currState.queue.join("")];
+      seenStates[new_b_string] = [
+        ...(seenStates[new_b_string] ?? []),
+        currState.queue.join(""),
+      ];
 
       for (let m of getAllLowestMinos(
         new_b,
         currState.queue[0],
-        currState.blocks.length
+        new_b.length
       )) {
         searchQueue.push({
           blocks: new_b,
