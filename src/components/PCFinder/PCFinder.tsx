@@ -31,45 +31,46 @@ const PCFinder = (props: PCFinderProps) => {
     const [isSolved, setIsSolved] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
-    const resetMessageState = () => {
+
+    const resetEverything = () => {
+        setExistingBlocks([]);
+        setSolutions([]);
+        setSolutionIndex(0);
+
         setIsSolving(false);
-        setIsSolved(false)
+        setIsSolved(false);
         setIsError(false);
         setErrorMessage('');
     }
 
     const startPCWorker = () => {
         if (props.queueMinos) {
-            resetMessageState();
-            setIsSolving(true)
-
-            const pcWorker: Worker = new Worker();
+            resetEverything();
+            setIsSolving(true);
 
             // save this for later
             const oldBlocks: Blocks = JSON.parse(JSON.stringify(props.blocks));
 
+            const pcWorker: Worker = new Worker();
+
             const state = {
                 b: props.blocks,
                 hold: props.holdMino,
-                queue: [props.currMino, ...props.queueMinos]
+                queue: [props.currMino, ...props.queueMinos.slice(0, 5)]
             }
 
             pcWorker.postMessage(state)
 
             pcWorker.onmessage = (e: MessageEvent) => {
-                console.log('done', e);
-
-                resetMessageState();
+                resetEverything();
                 setIsSolved(true);
 
                 loadSolutions(oldBlocks, e.data as Mino[][]);
                 pcWorker.terminate();
             }
-            pcWorker.onerror = (e: ErrorEvent) => {
-                console.log('error', e);
 
-                resetMessageState();
-                
+            pcWorker.onerror = (e: ErrorEvent) => {
+                resetEverything();
                 setIsError(true);
                 setErrorMessage(e.message);
 
