@@ -6,8 +6,8 @@ import { Mino, Blocks, PCFinderProps, minoType } from '../../types/types';
 
 import { getBoardWithPlacedMinos } from '../../scripts/util';
 
-import board from '/board.png'
-import blocksheet from '/blocksheet.png'
+import board from '../../assets/board.png'
+import blocksheet from '../../assets/blocksheet.png'
 
 import './PCFinder.css';
 

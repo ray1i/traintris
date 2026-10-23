@@ -3,9 +3,6 @@ import { useRef, useEffect } from "react"
 import { minoType } from "../../types/types"
 import { getNewMino, drawMino, getMinoWidth, getMinoHeight } from "../../scripts/util"
 
-const blocksheetSprite = new Image();
-blocksheetSprite.src = '/blocksheet.png';
-
 const Hold = (props: {holdMino?: minoType | undefined, setHoldMino: React.Dispatch<React.SetStateAction<minoType | undefined>>}) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
