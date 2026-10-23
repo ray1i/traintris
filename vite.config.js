@@ -6,5 +6,6 @@ export default defineConfig({
   base: '/traintris/',
   build: {
     outDir: 'build', // CRA's default build output
+    assetsInlineLimit: 0,
   },
 });

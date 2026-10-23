@@ -2,6 +2,11 @@ import { minoTypes, minoIndexes, blocksize } from "../constants/minodata";
 
 import { Mino, minoType, Blocks } from "../types/types";
 
+import blocksheetUrl from "../assets/blocksheet.png";
+
+const blocksheetSprite = new Image();
+blocksheetSprite.src = blocksheetUrl;
+
 export const collide = (b: Blocks, m: Mino): boolean => {
 
     for (let block of m.blocks) {
@@ -62,9 +67,6 @@ export const lowest = (b: Blocks, m: Mino): Mino => {
 }
 
 export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
-    const blocksheetSprite = new Image();
-    blocksheetSprite.src = "/blocksheet.png";
-
     const heightOffset = ctx.canvas.height / blocksize - 1; 
 
     for (let block of m.blocks) {
