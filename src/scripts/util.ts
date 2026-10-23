@@ -63,7 +63,7 @@ export const lowest = (b: Blocks, m: Mino): Mino => {
 
 export const drawMino = (ctx: CanvasRenderingContext2D, m: Mino) => {
     const blocksheetSprite = new Image();
-    blocksheetSprite.src = require("../img/blocksheet.png");
+    blocksheetSprite.src = "/blocksheet.png";
 
     const heightOffset = ctx.canvas.height / blocksize - 1; 
 
