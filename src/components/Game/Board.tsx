@@ -5,8 +5,8 @@ import { minoIndexes, blocksize } from "../../constants/minodata"
 import { Blocks, Mino, blockType, minoType } from "../../types/types"
 import { lowest, drawMino } from "../../scripts/util"
 
-import board from '../../img/board.png'
-import blocksheet from '../../img/blocksheet.png'
+// import board from '/board.png'
+// import blocksheet from '/blocksheet.png'
 
 export interface BoardProps {
     blocks: Blocks,
@@ -15,9 +15,9 @@ export interface BoardProps {
 }
 
 const blocksheetSprite = new Image();
-blocksheetSprite.src = blocksheet;
+blocksheetSprite.src = '/blocksheet.png';
 const boardSprite = new Image();
-boardSprite.src = board;
+boardSprite.src = '/board.png';
 
 const Board = (props: BoardProps) => {
 

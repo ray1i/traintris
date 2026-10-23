@@ -6,13 +6,11 @@ import { Mino, Blocks, PCFinderProps, minoType } from '../../types/types';
 
 import { getBoardWithPlacedMinos } from '../../scripts/util';
 
-import board from '../../img/board.png'
-import blocksheet from '../../img/blocksheet.png'
+import board from '/board.png'
+import blocksheet from '/blocksheet.png'
 
 import './PCFinder.css';
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import Worker from "worker-loader!../../scripts/pc-finder.worker.ts";
 
 const blocksheetSprite = new Image();
 blocksheetSprite.src = blocksheet;
@@ -43,7 +41,11 @@ const PCFinder = (props: PCFinderProps) => {
             resetMessageState();
             setIsSolving(true)
 
-            const pcWorker: Worker = new Worker();
+            const pcWorker = new Worker(
+                new URL("../../scripts/pc-finder.worker.ts", import.meta.url),
+                { type: "module" }
+            );
+
 
             // save this for later
             const oldBlocks: Blocks = JSON.parse(JSON.stringify(props.blocks));

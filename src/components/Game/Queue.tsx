@@ -1,12 +1,10 @@
 import { useRef, useEffect } from "react"
 
-import blocksheet from '../../img/blocksheet.png'
-
 import { minoType } from "../../types/types"
 import { getNewMino, drawMino, getMinoWidth, getMinoHeight } from "../../scripts/util"
 
 const blocksheetSprite = new Image();
-blocksheetSprite.src = blocksheet;
+blocksheetSprite.src = '/blocksheet.png';
 
 const Queue = (props: {queueMinos: minoType[], setQueueMinos: React.Dispatch<React.SetStateAction<minoType[]>>}) => {
 
